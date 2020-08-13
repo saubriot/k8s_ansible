@@ -1,0 +1,189 @@
+---
+    # file: roles/k8s_admin/tasks/install-openvpn.yml
+
+    - name: create file /etc/sysctl.d/openvpn.conf
+      copy:
+        content: |
+          net.ipv4.ip_forward=1
+        dest: /etc/sysctl.d/openvpn.conf
+      become: true
+  
+    - name: sysctl --system
+      shell: sysctl --system
+        
+    - name: install the package "openvpn, openssl, easy-rsa"
+      apt:
+        pkg: 
+        - openvpn
+        - openssl 
+        - easy-rsa
+
+    - name: cp -r /usr/share/easy-rsa /etc/openvpn/
+      shell: cp -r /usr/share/easy-rsa /etc/openvpn/
+    
+    - name: create file /etc/openvpn/easy-rsa/vars
+      copy:
+        dest: /etc/openvpn/easy-rsa/vars
+        content: |
+          {{ openvpn.easyrsa_vars }}
+
+    - name: rm file /etc/openvpn/easy-rsa/pki 
+      file:
+        path: /etc/openvpn/easy-rsa/pki 
+        state: absent
+        
+    - name: ./easyrsa init-pki
+      shell: |
+        cd /etc/openvpn/easy-rsa
+        ./easyrsa init-pki
+        dd if=/dev/urandom of=pki/.rnd bs=256 count=1
+
+    - name: ./easyrsa build-ca nopass
+      shell: |
+        cd /etc/openvpn/easy-rsa
+        ./easyrsa build-ca nopass
+
+    - name: ./easyrsa gen-req server nopass
+      shell: |
+        cd /etc/openvpn/easy-rsa
+        ./easyrsa gen-req server nopass
+
+    - name: ./easyrsa sign-req server server
+      shell: |
+        cd /etc/openvpn/easy-rsa
+        ./easyrsa sign-req server server
+
+    - name: ./easyrsa gen-dh
+      shell: |
+        cd /etc/openvpn/easy-rsa
+        ./easyrsa gen-dh
+
+    - name: openvpn --genkey --secret ta.key
+      shell: |
+        cd /etc/openvpn/easy-rsa
+        openvpn --genkey --secret ta.key
+          
+    - name: cp ta.key,ca.crt,server.key,server.crt,dh.pem to /etc/openvpn/server
+      shell: |
+        cd /etc/openvpn/easy-rsa
+        cp -p ta.key /etc/openvpn/server/
+        cp -p pki/ca.crt /etc/openvpn/server/
+        cp -p pki/private/server.key /etc/openvpn/server/
+        cp -p pki/issued/server.crt /etc/openvpn/server/
+        cp -p pki/dh.pem /etc/openvpn/server/
+
+    - name: ./easyrsa gen-req client nopass
+      shell: |
+        cd /etc/openvpn/easy-rsa
+        ./easyrsa gen-req client nopass
+      
+    - name: ./easyrsa sign-req client client
+      shell: |
+        cd /etc/openvpn/easy-rsa
+        ./easyrsa sign-req client client
+
+    - name: cp ca.crt,client.key,client.key to /etc/openvpn/client
+      shell: |
+        cd /etc/openvpn/easy-rsa
+        cp -p ta.key /etc/openvpn/client/
+        cp -p pki/ca.crt /etc/openvpn/client/
+        cp -p pki/issued/client.crt /etc/openvpn/client/
+        cp -p pki/private/client.key /etc/openvpn/client/
+    
+    - name: create file /etc/openvpn/server.conf
+      copy:
+        dest: /etc/openvpn/server.conf
+        content: |
+          local {{ openvpn.listen_ip }}
+          port {{ openvpn.port }}
+          proto {{ openvpn.proto }}
+          dev tun
+          ca /etc/openvpn/server/ca.crt
+          cert /etc/openvpn/server/server.crt
+          key /etc/openvpn/server/server.key  # This file should be kept secret
+          dh /etc/openvpn/server/dh.pem
+          server {{ openvpn.server_ip }} 255.255.255.0
+          ;push "redirect-gateway def1 bypass-dhcp"
+          push "dhcp-option DNS {{openvpn.dns}}"
+          push "route {{ openvpn.network_route }} 255.255.255.0"
+          keepalive 10 120
+          tls-auth /etc/openvpn/server/ta.key 0 # This file is secret
+          cipher AES-256-CBC
+          user nobody
+          group nogroup
+          persist-key
+          persist-tun
+          status /var/log/openvpn/openvpn-status.log
+          log /var/log/openvpn/openvpn.log
+          log-append /var/log/openvpn/openvpn.log
+          verb 3
+
+    - name: restart service openvpn@server
+      service:
+        name: openvpn@server
+        state: restarted
+    
+    - name: create file /etc/openvpn/client/config.ovpn
+      copy:
+        dest: /etc/openvpn/client/config.ovpn
+        content: |
+          client
+          dev tun
+          proto {{ openvpn.proto }}
+          remote {{ openvpn.listen_ip }} {{ openvpn.port }}
+          resolv-retry infinite
+          nobind
+          user nobody
+          group nogroup
+          persist-key
+          persist-tun
+          ca ca.crt
+          cert client.crt
+          key client.key
+          remote-cert-tls server
+          tls-auth ta.key 1
+          cipher AES-256-CBC
+          verb 3
+
+    - name: configure iptables for openvpn
+      shell: |
+        # allow connection on the openvpn port
+        iptables -A INPUT -i {{ openvpn.iface }} -m state --state NEW -p {{ openvpn.proto }} --dport {{ openvpn.port }} -j ACCEPT
+        # allow TUN interface connections
+        iptables -A INPUT -i tun+ -j ACCEPT
+        # allow TUN interface connections to be forwarded through network routing interface
+        iptables -A FORWARD -i tun+ -j ACCEPT
+        iptables -A FORWARD -i tun+ -o {{ openvpn.network_route_iface }} -m state --state RELATED,ESTABLISHED -j ACCEPT
+        iptables -A FORWARD -i {{ openvpn.network_route_iface }} -o tun+ -m state --state RELATED,ESTABLISHED -j ACCEPT
+        # NAT the VPN client traffic to the network routing interface
+        iptables -t nat -A POSTROUTING -s {{ openvpn.server_ip }}/24 -o {{ openvpn.network_route_iface }} -j MASQUERADE
+        # allow TUN interface output connections 
+        iptables -A OUTPUT -o tun+ -j ACCEPT
+        # save firewall rules (will be run automatically run at boot with iptables-persistent package)
+        iptables-save > /etc/iptables/rules.v4
+
+    - name: create file /etc/openvpn/client/openvpn-linux.sh
+      copy:
+        dest: /etc/openvpn/client/openvpn-linux.sh
+        content: |
+          route del -net {{ openvpn.network_route_delete }}
+          openvpn --config config.ovpn
+
+    - name: create file /etc/openvpn/client/openvpn-darwin.sh
+      copy:
+        dest: /etc/openvpn/client/openvpn-darwin.sh
+        content: |
+          route -n delete -net {{ openvpn.network_route_delete }}
+          # install openvpn for mac osx with brew install openvpn
+          /usr/local/sbin/openvpn --config config.ovpn
+
+    - archive:
+        path: /etc/openvpn/client/*
+        dest: /etc/openvpn/openvpn-client.tar.gz
+
+    - name: fetch openvpn client configuration
+      fetch:
+        src: "/etc/openvpn/openvpn-client.tar.gz"
+        dest: "{{ all.fetch_directory }}/openvpn-client-{{ ansible_host }}.tar.gz"
+        flat: yes
+  

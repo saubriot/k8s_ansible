@@ -1,0 +1,27 @@
+---
+# file: roles/k8s_core/tasks/delete-cfssl.yml
+
+- name: rm file /home/kubeadmin/cfssl/ca-csr.json
+  file:
+    path: /home/kubeadmin/cfssl/ca-csr.json
+    state: absent
+
+- name: rm file /home/kubeadmin/cfssl/ca.pem
+  file:
+    path: /home/kubeadmin/cfssl/ca.pem
+    state: absent
+
+- name: rm file /home/kubeadmin/cfssl/ca-key.pem
+  file:
+    path: /home/kubeadmin/cfssl/ca-key.pem
+    state: absent
+
+- name: rm file /home/kubeadmin/cfssl/ca.csr
+  file:
+    path: /home/kubeadmin/cfssl/ca.csr
+    state: absent
+
+- name: rm file /home/kubeadmin/cfssl/ca-config.json
+  file:
+    path: /home/kubeadmin/cfssl/ca-config.json
+    state: absent

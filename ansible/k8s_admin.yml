@@ -1,0 +1,7 @@
+---
+# file: k8s_admin.yml
+- hosts: k8s_admin
+  become: true
+  roles:
+    - common
+    - k8s_admin

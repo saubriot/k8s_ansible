@@ -1,0 +1,7 @@
+---
+    # file: roles/k8s_admin/tasks/install-others.yml
+    
+    - name: install the package "net-tools"
+      apt:
+        pkg: 
+        - net-tools

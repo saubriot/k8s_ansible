@@ -1,0 +1,62 @@
+---
+# file: roles/k8s_core/tasks/install-cfssl.yml
+
+- name: create directory /home/kubeadmin/cfssl
+  file:
+    path: /home/kubeadmin/cfssl
+    state: directory
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/cfssl/ca-csr.json
+  copy:
+    content: |
+      {
+        "CN": "{{ k8s.core.cfssl.domain }} Self Signed CA",
+        "key": {
+          "algo": "rsa",
+          "size": 2048
+        },
+        "names": [
+          {
+            "C": "{{ k8s.core.cfssl.ca.csr_C }}",
+            "L": "{{ k8s.core.cfssl.ca.csr_L }}",
+            "ST": "{{ k8s.core.cfssl.ca.csr_ST }}"
+          }
+        ]
+      }
+    dest: /home/kubeadmin/cfssl/ca-csr.json
+  become: true
+  become_user: kubeadmin
+
+- name: cfssl gencert
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    cfssl gencert -initca ca-csr.json | cfssljson -bare ca -
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/cfssl/ca-config.json
+  copy:
+    content: |
+      {
+        "signing": {
+          "default": {
+            "expiry": "8760h"
+          },
+        "profiles": {
+          "web-servers": {
+            "usages": [
+              "signing",
+              "key encipherment",
+              "server auth",
+              "client auth"
+            ],
+            "expiry": "8760h"
+            }
+          }
+        }
+      }
+    dest: /home/kubeadmin/cfssl/ca-config.json
+  become: true
+  become_user: kubeadmin

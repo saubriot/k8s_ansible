@@ -1,0 +1,54 @@
+---
+    # file: roles/k8s_admin/tasks/install-bind.yml
+    
+    - name: install the package "bind"
+      apt:
+        pkg: 
+        - bind9
+            
+    - name: create file /etc/bind/named.conf.options
+      copy:
+        dest: /etc/bind/named.conf.options
+        content: |
+          acl trusted { {{bind.acl_trusted}} };
+    
+          options {
+            directory "/var/cache/bind";
+            listen-on port {{ bind.port }} { {{ bind.listen_ip }}; };
+            allow-update { none; };
+            allow-query { trusted; };
+            forwarders { {{bind.forwarders}} };
+            recursion yes;
+          };
+        
+    - name: create file /etc/bind/named.conf.local
+      copy:
+        dest: /etc/bind/named.conf.local
+        content: |
+          zone "{{ bind.zone_name }}" IN {
+            type master;
+            file "{{ bind.zone_name }}.zone";
+          };
+        
+    - name: create file /var/cache/bind/{{ bind.zone_name }}.zone
+      copy:
+        dest: /var/cache/bind/{{ bind.zone_name }}.zone
+        content: |
+          {{ bind.zone }}
+    
+    - name: restart service bind
+      service:
+        name: bind9
+        state: restarted
+
+    - name: create folder /etc/iptables
+      file:
+        path: /etc/iptables
+        state: directory
+
+    - name: configure iptables for bind
+      shell: |
+        # allow connection
+        iptables -A INPUT -m state --state NEW -p tcp --dport 53 -j ACCEPT
+        # save firewall rules (will be run automatically run at boot with iptables-persistent package)
+        iptables-save > /etc/iptables/rules.v4

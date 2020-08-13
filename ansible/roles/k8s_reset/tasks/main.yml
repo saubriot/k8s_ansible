@@ -1,0 +1,31 @@
+---
+# file: roles/k8s_reset/tasks/main.yml
+
+- name: kubeadm reset -f
+  shell: kubeadm reset -f
+  tags: reset
+  when: reset
+
+- name: remove /etc/cni/net.d if exists
+  file:
+    path: /etc/cni/net.d
+    state: absent
+  when: reset
+
+- name: stop service docker
+  service:
+    name: docker
+    state: stopped
+  when: reset
+
+- name: remove /var/lib/docker if exists
+  file:
+    path: /var/lib/docker
+    state: absent
+  when: reset
+
+- name: start service docker
+  service:
+    name: docker
+    state: started
+  when: reset

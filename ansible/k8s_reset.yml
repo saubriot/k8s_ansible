@@ -1,0 +1,6 @@
+---
+# file: k8s_reset.yml
+- hosts: k8s_reset
+  become: true
+  roles:
+    - k8s_reset

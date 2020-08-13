@@ -1,0 +1,6 @@
+---
+# file: k8s_core.yml
+- hosts: k8s_core
+  become: true
+  roles:
+    - k8s_core

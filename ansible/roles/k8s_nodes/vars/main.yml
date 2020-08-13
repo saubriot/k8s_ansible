@@ -1,0 +1,7 @@
+# operation (install or delete) and task to run
+#
+# use --extra-vars="operation=install task=all" when running ansible-playbook
+#
+
+operation: install
+task: all

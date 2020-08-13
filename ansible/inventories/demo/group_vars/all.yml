@@ -1,0 +1,23 @@
+
+all:
+  fetch_directory: /tmp
+  environment: demo
+
+k8s:
+  master:
+    pod_network_cidr: 10.244.0.0/16
+    kubeadm_extra: --ignore-preflight-errors=NumCPU
+    multi_master: false
+  core:
+    cni: weave
+    metallb:
+      ip_range: "192.168.10.190-192.168.10.199"
+    cfssl:
+      domain: k8s.europe
+      ca:
+        csr_C: EU
+        csr_L: Paris
+        csr_ST: France
+    ui:
+      csr_CN: dashboard.k8s.europe
+      host: dashboard.k8s.europe

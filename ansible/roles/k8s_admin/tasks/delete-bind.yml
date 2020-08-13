@@ -1,0 +1,15 @@
+---
+    # file: roles/k8s_admin/tasks/delete-bind.yml
+           
+    - name: remove iptables for bind
+      shell: |
+        # remove iptable to allow connection
+        iptables -D INPUT -m state --state NEW -p tcp --dport 53 -j ACCEPT
+        # save firewall rules (will be run automatically run at boot with iptables-persistent package)
+        iptables-save > /etc/iptables/rules.v4
+
+    - name: remove the package "bind"
+      apt:
+        pkg: 
+        - bind9
+        state: absent

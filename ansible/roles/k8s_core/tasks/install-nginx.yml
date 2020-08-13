@@ -1,0 +1,10 @@
+---
+# file: roles/k8s_core/tasks/install-nginx.yml
+
+- name: install nginx ingress controller
+  shell: |
+    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.26.1/deploy/static/mandatory.yaml
+    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.26.1/deploy/static/provider/cloud-generic.yaml
+  become: true
+  become_user: kubeadmin
+

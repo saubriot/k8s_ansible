@@ -1,0 +1,9 @@
+---
+# file: k8s_master_nodes.yml
+- hosts: k8s_master_nodes
+  become: true
+  roles:
+    - common
+    - docker
+    - k8s
+    - k8s_master_nodes

@@ -1,0 +1,10 @@
+---
+# file: roles/k8s_core/tasks/delete-nginx.yml
+
+- name: delete nginx ingress controller
+  shell: |
+    kubectl delete -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.26.1/deploy/static/provider/cloud-generic.yaml
+    kubectl delete -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.26.1/deploy/static/mandatory.yaml
+  become: true
+  become_user: kubeadmin
+

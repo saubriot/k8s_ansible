@@ -1,0 +1,38 @@
+---
+# file: roles/k8s_core/tasks/install-metallb.yml
+
+- name: install metallb load balancer
+  shell: kubectl apply -f https://raw.githubusercontent.com/google/metallb/v0.8.3/manifests/metallb.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: create directory /home/kubeadmin/metallb
+  file:
+    path: /home/kubeadmin/metallb
+    state: directory
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/metallb/config.yaml
+  copy:
+    content: |
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        namespace: metallb-system
+        name: config
+      data:
+        config: |
+          address-pools:
+          - name: default
+            protocol: layer2
+            addresses:
+            - {{ k8s.core.metallb.ip_range }}
+    dest: /home/kubeadmin/metallb/config.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: apply metallb load balancer configuration
+  shell: kubectl apply -f /home/kubeadmin/metallb/config.yaml
+  become: true
+  become_user: kubeadmin

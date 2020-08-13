@@ -1,0 +1,44 @@
+---
+    # file: roles/k8s_admin/tasks/haproxy.yml
+    
+    - name: install the package "haproxy"
+      apt:
+        pkg: 
+        - haproxy
+      tags: install, haproxy
+    
+    - name: rm file /etc/haproxy/haproxy.cfg
+      file:
+        path: /etc/haproxy/haproxy.cfg
+        state: absent
+      tags: install, configure, haproxy
+    
+    - name: create file /etc/haproxy/haproxy.cfg
+      blockinfile:
+        path: /etc/haproxy/haproxy.cfg
+        marker: ""
+        block: |
+          {{ haproxy_config }}
+        create: true
+        backup: true
+      tags: install, configure, haproxy
+    
+    - name: restart service haproxy
+      service:
+        name: haproxy
+        state: restarted
+      tags: install, configure, haproxy
+
+    - name: rm file /etc/openvpn/server.conf 
+      file:
+        path: /etc/openvpn/server.conf 
+        state: absent
+      tags: install, configure, haproxy
+
+    - name: configure iptables for haproxy
+      shell: |
+        # allow connection
+        iptables -A INPUT -i {{ haproxy_iface }} -m state --state NEW -p tcp --dport {{ k8s_apiserver_port }} -j ACCEPT
+        # save firewall rules (will be run automatically run at boot with iptables-persistent package)
+        iptables-save > /etc/iptables/rules.v4
+      tags: install, configure, haproxy

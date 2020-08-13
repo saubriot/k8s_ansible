@@ -1,0 +1,19 @@
+[k8s_admin]
+strasbourg.europe ansible_host=192.168.10.254
+
+[k8s_master_nodes]
+paris.europe ansible_host=192.168.10.10 init_master=single
+
+[k8s_nodes]
+roma.europe ansible_host=192.168.10.12
+madrid.europe ansible_host=192.168.10.13
+lisboa.europe ansible_host=192.168.10.14
+
+[k8s_core]
+paris.europe ansible_host=192.168.10.10
+
+[k8s_reset]
+paris.europe ansible_host=192.168.10.10 reset=true
+roma.europe ansible_host=192.168.10.12 reset=true
+madrid.europe ansible_host=192.168.10.13 reset=true
+lisboa.europe ansible_host=192.168.10.14 reset=true

@@ -1,0 +1,55 @@
+
+# bind configuration
+
+bind:
+  acl_trusted: "192.168.10.0/24; 10.8.0.0/24;"
+  forwarders: "8.8.8.8; 8.8.4.4;"
+  listen_ip: "192.168.10.254"  
+  port: 53
+  zone_name: europe
+  zone: |
+      @   IN  SOA     ns1.europe. root.europe. (
+              2011071001  ;Serial
+              3600        ;Refresh
+              1800        ;Retry
+              604800      ;Expire
+              86400       ;Minimum TTL
+      )
+      @       IN  NS          ns1.europe.
+      @       IN  A           192.168.10.254
+      @       IN  A           192.168.10.10
+      @       IN  A           192.168.10.11
+      @       IN  A           192.168.10.12
+      @       IN  A           192.168.10.13
+      @       IN  A           192.168.10.14
+      ns1             IN  A   192.168.10.254
+      strasbourg      IN  A   192.168.10.254
+      paris           IN  A   192.168.10.10
+      roma            IN  A   192.168.10.12
+      madrid          IN  A   192.168.10.13
+      lisboa          IN  A   192.168.10.14
+      dashboard.k8s   IN  A   192.168.10.190
+      rook-ceph.k8s   IN  A   192.168.10.190
+      grafana.k8s     IN  A   192.168.10.190
+
+# onpenvpn configuration
+
+openvpn:
+  listen_ip: "192.168.10.254"
+  port: 1194
+  proto: tcp
+  iface: "eth0"
+  server_ip: "10.8.0.0"
+  dns: "192.168.10.254"
+  network_route: "192.168.10.0"
+  network_route_iface: "eth1"
+  network_route_delete: "192.168.10.0/24"
+  easyrsa_vars: |
+      export KEY_COUNTRY="EU"
+      export KEY_PROVINCE="France"
+      export KEY_CITY="Paris"
+      export KEY_ORG="europe"
+      export KEY_EMAIL="admin@europe"
+      export KEY_OU="OpenVPN"
+      export EASYRSA_BATCH="1"
+

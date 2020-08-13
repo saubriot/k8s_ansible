@@ -1,0 +1,24 @@
+---
+# file: roles/k8s_core/tasks/check-dashboard-login.yml
+
+- name: get admin user token
+  shell: |
+    kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')|grep ^token|awk '{print $2}'
+  register: admin_user_token_result
+  become: true
+  become_user: kubeadmin
+
+- name: store admin user token environment "{{ all.environment }}"
+  copy:
+    content: "{{ admin_user_token_result.stdout }}"
+    dest: "/var/log/k8s_admin_user_token_file_{{ all.environment }}"
+
+- name: fetch admin user token for k8s dashboard access environment "{{ all.environment }}"
+  fetch:
+    src: "/var/log/k8s_admin_user_token_file_{{ all.environment }}"
+    dest: "{{ all.fetch_directory }}/"
+    flat: yes
+
+- name: copy/paste admin user token for k8s dashboard access environment "{{ all.environment }}"
+  debug:
+    msg: "{{ admin_user_token_result.stdout }}"

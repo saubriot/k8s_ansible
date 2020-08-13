@@ -1,0 +1,31 @@
+---
+# file: roles/common/tasks/main.yml
+
+- name: hostnamectl set-hostname 
+  shell: hostnamectl set-hostname {{ inventory_hostname }}
+
+- name: remove 127.0.1.1 line from /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.1\.1'
+    state: absent
+
+- name: add hostname -i line in /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    line: "{{ ansible_host }} {{ inventory_hostname }}"
+    state: present
+
+- name: create directory /etc/iptables
+  file:
+    path: /etc/iptables
+    state: directory
+    mode: '0755'
+
+- name: install the package "net-tools, golang-cfssl, iptables-persistent"
+  apt:
+    pkg: 
+    - net-tools
+    - golang-cfssl
+    - iptables-persistent
+

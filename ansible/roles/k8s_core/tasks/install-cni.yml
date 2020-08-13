@@ -1,0 +1,20 @@
+---
+# file: roles/k8s_core/tasks/install-cni.yml
+
+- name: install CNI "weave"
+  shell: kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+  become: true
+  become_user: kubeadmin
+  when: k8s.core.cni == "weave"
+
+- name: install CNI "flannel"
+  shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+  become: true
+  become_user: kubeadmin
+  when: k8s.core.cni == "flannel"
+
+- name: install CNI "calico"
+  shell: kubectl apply -f https://docs.projectcalico.org/v3.11/manifests/calico.yaml
+  become: true
+  become_user: kubeadmin
+  when: k8s.core.cni == "calico"

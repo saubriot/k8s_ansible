@@ -1,0 +1,5 @@
+---
+# file: roles/k8s_core/tasks/check.yml
+
+- include_tasks: "check-ui-login.yml"
+  when: task == "ui-login" or task == "all"

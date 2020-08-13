@@ -1,0 +1,15 @@
+---
+# file: roles/k8s_core/tasks/delete.yml
+
+- include_tasks: "delete-ui.yml"
+  when: task == "ui" or task == "all"
+
+- include_tasks: "delete-nginx.yml"
+  when: task == "nginx" or task == "all"
+
+- include_tasks: "delete-metallb.yml"
+  when: task == "metallb" or task == "all"
+
+- include_tasks: "delete-cfssl.yml"
+  when: task == "cfssl" or task == "all"
+

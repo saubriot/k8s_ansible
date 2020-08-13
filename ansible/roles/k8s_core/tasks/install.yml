@@ -1,0 +1,17 @@
+---
+# file: roles/k8s_core/tasks/install.yml
+
+- include_tasks: "install-cni.yml"
+  when: task == "cni" or task == "all"
+
+- include_tasks: "install-cfssl.yml"
+  when: task == "cfssl" or task == "all"
+
+- include_tasks: "install-metallb.yml"
+  when: task == "metallb" or task == "all"
+
+- include_tasks: "install-nginx.yml"
+  when: task == "nginx" or task == "all"
+
+- include_tasks: "install-ui.yml"
+  when: task == "ui" or task == "all"
