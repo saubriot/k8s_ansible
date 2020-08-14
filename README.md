@@ -1,22 +1,23 @@
 # Install a Kubernetes cluster using Ansible
 
-## 1. Introduction
+# 1. Introduction
 
 We will use Ansible to install a Kubernetes Cluster including its Manageùent Dashboard.
 
-## 2. Architecture
+# 2. Architecture
 
 Demo architecture used for the cluster (see https://github.com/saubriot/k8s_vagrant/)
 
 ![Architecture](https://github.com/saubriot/k8s_ansible/blob/master/images/k8s_architecture.png)
 
-## 3. Pre requisites
+# 3. Prerequisites
 - Ansible installed on the local host that will run the playbook
 - Create an ansible user account with sudo and NO_PASSWD on all hosts (/etc/sudoers.d/ansible_no_password)
 - Allow the local ansible account to connect remote hosts using certificate (ssh-copy)
+- Requires hosts pre installed. See https://github.com/saubriot/k8s_vagrant for the VMs creation using vagrant for the demo environment.
 
-## 4. Cluster installation
-## 4.1 How it works : short explanation 
+# 4. Cluster installation
+## 4.1. How it works : short explanation 
 
 The ansible directory structure has been defined as followed :
 - **ansible** : contains the main playbooks, the environments to deploy (under inventories) and the roles and tasks to execute (under roles) 
@@ -42,13 +43,13 @@ The ansible directory structure has been defined as followed :
     - **k8s_reset** : specific tasks to reset kubernetes installation : revert to a clean pre installation
 
 
-### 4.2 Install k8s administration host
-### 4.2.a Stakes
+## 4.2. Install k8s administration host
+### 4.2.a. Objective
 The administration host includes 2 main components :
 - A DNS Server for .europe domain name resolution including hostnames (ex : paris.europe) and kubernetes domain names (ex : dashboard.k8s.europe).
 - An OpenVPN Server to connect the Cluster (usefull if you want restrict external access on a specific interface)
 
-### 4.2.b Install using vagrant account
+### 4.2.b. Install using vagrant account
 Move to ansible directory (assuming git repo is installed in ~/k8s_ansible) and run the playbook k8s_admin.yml.
 ```
 cd ~/k8s_ansible/ansible
@@ -67,7 +68,7 @@ PLAY RECAP *********************************************************************
 strasbourg.europe          : ok=43   changed=33   unreachable=0    failed=0   
 
 ```
-### 4.2.c Using --extra-vars to customize installation
+### 4.2.c. Using --extra-vars to customize installation
 The playbook accepts 2 extra vars :
 - operation : could be either "install" or "delete"
 - task : could be either "all" or the task to execute. In our case : "openvpn", "bind" and "others".
@@ -91,7 +92,7 @@ Delete bind :
 ansible-playbook -i inventories/demo k8s_admin.yml -u vagrant --extra-vars="operation=delete task=bind"
 ```
 
-### 4.2.d Install using ansible account
+### 4.2.d. Install using ansible account
 Log in as ansible, move to ansible directory (assuming git repo is installed in ~/k8s_ansible) and run the playbook k8s_admin.yml without -u parameter.
 ```
 sudo su - ansible
@@ -99,13 +100,13 @@ cd ~/k8s_ansible/ansible
 ansible-playbook -i inventories/demo k8s_admin.yml
 ```
 
-### 4.3 Install the Kubernetes master node
-### 4.3.a Stakes
+## 4.3. Install the Kubernetes master node
+### 4.3.a. Objective
 Install docker, kubernetes packages on the master node.
 
 Configure the master node (kubeadm init) and the kubeadmin user
 
-### 4.3.b Install using vagrant account
+### 4.3.b. Install using vagrant account
 Move to ansible directory (assuming git repo is installed in ~/k8s_ansible) and run the playbook k8s_master_nodes.yml.
 ```
 cd ~/k8s_ansible/ansible
@@ -125,7 +126,7 @@ paris.europe               : ok=39   changed=29   unreachable=0    failed=0
 
 ```
 
-### 4.3.c Install using ansible account
+### 4.3.c. Install using ansible account
 Log in as ansible, move to ansible directory (assuming git repo is installed in ~/k8s_ansible) and run the playbook k8s_master_nodes.yml without -u parameter.
 ```
 sudo su - ansible
@@ -133,7 +134,7 @@ cd ~/k8s_ansible/ansible
 ansible-playbook -i inventories/demo k8s_master_nodes.yml
 ```
 
-### 4.3.d Verify installation
+### 4.3.d. Verify installation
 Connect the master node, log in as kubeadmin and execute kubectl command to check installtion.
 ```
 ssh vagrant@192.168.10.10
@@ -158,13 +159,13 @@ kube-system   kube-proxy-j5rvp                       1/1     Running   0        
 kube-system   kube-scheduler-paris.europe            1/1     Running   0          103s   192.168.10.10   paris.europe   <none>           <none>
 ```
 
-### 4.4 Install the Kubernetes nodes
-### 4.4.a Stakes
+## 4.4. Install the Kubernetes nodes
+### 4.4.a. Objective
 Install docker, kubernetes packages on the "non master" nodes.
 
 Join the nodes to the master node (kubeadm join).
 
-### 4.4.b Install using vagrant account
+### 4.4.b. Install using vagrant account
 Move to ansible directory (assuming git repo is installed in ~/k8s_ansible) and run the playbook k8s_nodes.yml.
 ```
 cd ~/k8s_ansible/ansible
@@ -188,7 +189,7 @@ roma.europe                : ok=34   changed=25   unreachable=0    failed=0
 
 ```
 
-### 4.4.c Install using ansible account
+### 4.4.c. Install using ansible account
 Log in as ansible, move to ansible directory (assuming git repo is installed in ~/k8s_ansible) and run the playbook k8s_nodes.yml without -u parameter.
 ```
 sudo su - ansible
@@ -196,7 +197,7 @@ cd ~/k8s_ansible/ansible
 ansible-playbook -i inventories/demo k8s_nodes.yml
 ```
 
-### 4.4.d Verify installation
+### 4.4.d. Verify installation
 Connect the master node, log in as kubeadmin and execute kubectl command to check installtion.
 ```
 ssh vagrant@192.168.10.10
@@ -227,8 +228,8 @@ kube-system   kube-proxy-tn22j                       1/1     Running   0        
 kube-system   kube-scheduler-paris.europe            1/1     Running   0          5m9s   192.168.10.10   paris.europe    <none>           <none>
 ```
 
-### 4.5 Install the Kubernetes core components
-### 4.5.a Stakes
+## 4.5. Install the Kubernetes core components
+### 4.5.a. Objective
 Install the kubernetes core components :
 - cni : network : weave by default
 - cfssl : tools to generate certificates
@@ -236,7 +237,7 @@ Install the kubernetes core components :
 - metallb : external load balancer
 - dashboard : kubernetes dashboard
 
-### 4.5.b Install using vagrant account
+### 4.5.b. Install using vagrant account
 Move to ansible directory (assuming git repo is installed in ~/k8s_ansible) and run the playbook k8s_core.yml.
 ```
 cat << EOF > ~/.ansible/ansible.cfg
@@ -262,7 +263,7 @@ paris.europe               : ok=28   changed=21   unreachable=0    failed=0
 
 ```
 
-### 4.5.c Install using ansible account
+### 4.5.c. Install using ansible account
 Log in as ansible, move to ansible directory (assuming git repo is installed in ~/k8s_ansible) and run the playbook k8s_core.yml without -u parameter.
 ```
 sudo su - ansible
@@ -270,7 +271,7 @@ cd ~/k8s_ansible/ansible
 ansible-playbook -i inventories/demo k8s_core.yml
 ```
 
-### 4.5.d Verify installation
+### 4.5.d. Verify installation
 Connect the master node, log in as kubeadmin and execute kubectl command to check installtion.
 ```
 ssh vagrant@192.168.10.10
@@ -301,7 +302,7 @@ metallb-system         speaker-pbnr7                                1/1     Runn
 metallb-system         speaker-ztm7q                                1/1     Running   0          78s     192.168.10.14   lisboa.europe   <none>           <none>
 ```
 
-### 4.5.e Restart Libvirt or Virtualbox VMs
+### 4.5.e. Restart Libvirt or Virtualbox VMs
 If you deploy Kubernetes on VMs using vagrant (see https://github.com/saubriot/k8s_vagrant/) you need to restart the VMs to get load balancer metallb running correctly otherwise you won't be able to connect Kubernetes dashboard.
 
 For libvirt :
@@ -317,7 +318,7 @@ vagrant halt
 vagrant up
 ```
 
-### 4.5.f Verify DNS configured on Administration host is working correctly
+### 4.5.f. Verify DNS configured on Administration host is working correctly
 
 The DNS should return the IP address 192.168.10.190 for dashboard.k8s.europe : 
 ```
@@ -327,7 +328,7 @@ dig dashboard.k8s.europe @192.168.10.254 +short
 192.168.10.190
 ```
 
-### 4.5.g Access Kubernetes dashboard : configure additional DNS server
+### 4.5.g. Access Kubernetes dashboard : configure additional DNS server
 
 Configure an additional DNS server for additionnal search domains for ipv4 setting of your network interface card :
 - Additional DNS servers: 192.168.10.254
@@ -335,7 +336,7 @@ Configure an additional DNS server for additionnal search domains for ipv4 setti
 
 Note : on Debian using Network Manager, a disconnect/connect is necessary on the network interface to get DNS resolution working
 
-### 4.5.h Access Kubernetes dashboard : get token for login
+### 4.5.h. Access Kubernetes dashboard : get token for login
 
 Run the playbook k8s_core.yml with extra vars operation=check and task=ui-login.
 ```
@@ -365,7 +366,7 @@ Copy/paste the content of msg (between quotes) :
 eyJhbGciOiJSUzI1NiIsImtpZCI6Inl0ZUZsTTE2Ylp6SlBEc1U3cE5Jc29TT1FLeE9BM1E3WE1CR25NNDJBMVkifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJhZG1pbi11c2VyLXRva2VuLXBwNnZjIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImFkbWluLXVzZXIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiJjOWY3YTliYi1kZWQ3LTQ5NTAtYjg3OS04YTQ2MWFhMWNmMGQiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZS1zeXN0ZW06YWRtaW4tdXNlciJ9.CJBPjkypUAy4vA8MNw4HeaodVfQE37EwyD2qF9PKsfpBr2h6eje45xXNZiRGTNhFTbmpRx0Tzd7rdWatgn6VYCgDflozPUJR14Qobu_itoVHTYqwKuFi232wrdHLRiw9xYyxGShGjtb3XZkCk9yCf8kkwFPXIhWtB52x8M-CSq3P0M9NHkBMUL6CKpzjojHfBHI60x7K-BK8BUVAShn6Dxz5Ya1cCwTu2SSrhs1Ne_TjSD8ZaFd3ZD2XdPHi1T6-JBBi8dF-2U5XKVYCPlFqFzvxoA3RpDKqdcTKfQrBwvzC6nuCUxUep4QQ7rPeMVeBDHUtwKb5QjEwE_5QW0bK0A
 ```
 
-### 4.5.i Access Kubernetes dashboard : login
+### 4.5.i. Access Kubernetes dashboard : login
 
 Open your browser (Firefox in our case) at https://dashboard.k8s.europe 
 
@@ -389,7 +390,7 @@ Note : The certificate is a self certificate generated usng cfssl. Click on [Adv
 
 > You can now manage your Kubernetes cluster using the dashboard 
 
-### 4.5.j Using --extra-vars to customize installation
+### 4.5.j. Using --extra-vars to customize installation
 The playbook accepts 2 extra vars :
 - operation : could be either "install", "delete" or "check" (only for task "ui-login")
 - task : could be either "all" or the task to execute. In our case : "cni", "cfssl", "nginx", "ui" and "ui-login" (only for operation check).
@@ -409,11 +410,10 @@ Install dashboard :
 ansible-playbook -i inventories/demo k8s_core.yml -u vagrant --extra-vars="operation=install task=ui"
 ```
 
-## 4.6 Cleanup Kubernetes cluster installation
+## 4.6. Cleanup Kubernetes cluster installation
 
 Run the playbook k8s_reset.yml to remove the kubernetes cluster. After this operation you are able to reinstall a fresh cluster : master + nodes + core components. 
 ```
 cd ~/k8s_ansible/ansible
 ansible-playbook -i inventories/demo k8s_reset.yml -u vagrant
 ```
-
