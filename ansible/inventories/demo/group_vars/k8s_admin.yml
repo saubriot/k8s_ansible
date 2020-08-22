@@ -31,6 +31,9 @@ bind:
       dashboard.k8s   IN  A   192.168.10.190
       rook-ceph.k8s   IN  A   192.168.10.190
       grafana.k8s     IN  A   192.168.10.190
+      gitea.k8s       IN  A   192.168.10.190
+      drone.k8s       IN  A   192.168.10.190
+      harbor.k8s      IN  A   192.168.10.190
 
 # onpenvpn configuration
 
