@@ -15,3 +15,6 @@
 
 - include_tasks: "install-ui.yml"
   when: task == "ui" or task == "all"
+
+- include_tasks: "install-coredns.yml"
+  when: task == "coredns" or task == "all"

@@ -1,0 +1,7 @@
+---
+# file: roles/k8s_core/tasks/delete-coredns.yml
+
+- name: apply backup coredns configmap
+  shell: kubectl apply -f /home/kubeadmin/k8s/coredns/configmap-coredns-before.yaml
+  become: true
+  become_user: kubeadmin

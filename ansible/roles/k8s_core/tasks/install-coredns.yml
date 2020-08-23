@@ -1,0 +1,36 @@
+---
+# file: roles/k8s_core/tasks/install-coredns.yml
+
+- name: create directory /home/kubeadmin/k8s/coredns
+  file:
+    path: /home/kubeadmin/k8s/coredns
+    state: directory
+  become: true
+  become_user: kubeadmin
+
+- name: get coredns configmap
+  shell: kubectl get configmap -n kube-system coredns -o yaml | grep -v resourceVersion > /home/kubeadmin/k8s/coredns/configmap-coredns.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: backup coredns configmap
+  shell: cp /home/kubeadmin/k8s/coredns/configmap-coredns.yaml /home/kubeadmin/k8s/coredns/configmap-coredns-before.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: Insert local coredns configuration
+  blockinfile:
+    path: /home/kubeadmin/k8s/coredns/configmap-coredns.yaml
+    marker: "    # CUSTOM COREDNS"
+    insertbefore: "kind: ConfigMap"
+    block: |4
+            {{ k8s.core.coredns.domain }}:{{ k8s.core.coredns.port }} {
+                errors
+                cache 30
+                forward . {{ k8s.core.coredns.forward }}
+            }    
+      
+- name: apply coredns configmap
+  shell: kubectl apply -f /home/kubeadmin/k8s/coredns/configmap-coredns.yaml
+  become: true
+  become_user: kubeadmin

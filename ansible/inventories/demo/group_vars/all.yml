@@ -21,3 +21,10 @@ k8s:
     ui:
       csr_CN: dashboard.k8s.europe
       host: dashboard.k8s.europe
+
+    coredns: |
+      k8s.europe:53 {
+          errors
+          cache 30
+          forward . 192.168.10.154
+      }
