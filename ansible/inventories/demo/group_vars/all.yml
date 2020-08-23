@@ -25,5 +25,5 @@ k8s:
     coredns: 
       domain: k8s.europe
       port: 53
-      forward: 192.168.10.154
+      forward: 192.168.10.254
 
