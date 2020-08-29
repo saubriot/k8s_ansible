@@ -66,7 +66,3 @@
 - name: disable swap
   shell: swapoff -a
 
-- name: disable ipv6
-  shell: |
-    echo 'net.ipv6.conf.all.disable_ipv6 = 1' > /etc/sysctl.d/90-disable-ipv6.conf
-    sysctl -p -f /etc/sysctl.d/90-disable-ipv6.conf

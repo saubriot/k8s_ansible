@@ -12,7 +12,7 @@
   when: init_master == "multi" 
 
 - name: kubeadm init single master
-  shell: kubeadm init --pod-network-cidr {{ k8s.master.pod_network_cidr }} {{ k8s.master.kubeadm_extra }} > /var/log/kubeadm_init.log
+  shell: kubeadm init --pod-network-cidr {{ k8s.master.pod_network_cidr }} --apiserver-advertise-address {{ ansible_host }} {{ k8s.master.kubeadm_extra }} > /var/log/kubeadm_init.log
   when: init_master == "single" 
 
 - name: get kubadm join command for master node
