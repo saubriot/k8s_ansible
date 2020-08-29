@@ -8,6 +8,28 @@ k8s:
     pod_network_cidr: 10.244.0.0/16
     kubeadm_extra: --ignore-preflight-errors=NumCPU
     multi_master: false
+    untaint: true # untaint master node for pode election
+    untaint_master_nodes:
+      - paris.europe
+  
+  coredns:
+    namespace: coredns-europe
+    port: 53
+    zone_name: europe
+    external_ip: 192.168.10.190
+    zone: |
+      europe.         IN  SOA ns1.europe. root.europe. 2015082541 7200 3600 1209600 3600
+      europe.         IN  NS  ns1.europe.
+      ns1             IN  A   192.168.10.190
+      paris           IN  A   192.168.10.10
+      berlin          IN  A   192.168.10.11
+      roma            IN  A   192.168.10.12
+      dashboard.k8s   IN  A   192.168.10.190
+      rook-ceph.k8s   IN  A   192.168.10.190
+      grafana.k8s     IN  A   192.168.10.190
+      gitea.k8s       IN  A   192.168.10.190
+      drone.k8s       IN  A   192.168.10.190
+      harbor.k8s      IN  A   192.168.10.190
   core:
     cni: weave
     metallb:
@@ -25,5 +47,5 @@ k8s:
     coredns: 
       domain: k8s.europe
       port: 53
-      forward: 192.168.10.254
+      forward: 192.168.10.190
 

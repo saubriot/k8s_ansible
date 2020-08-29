@@ -18,3 +18,6 @@
 
 - include_tasks: "install-coredns.yml"
   when: task == "coredns" or task == "all"
+
+- include_tasks: "untaint-master-nodes.yml"
+  when: (task == "untaint-master-nodes" or task == "all") and k8s.master.untaint

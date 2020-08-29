@@ -5,3 +5,24 @@
   shell: kubectl apply -f /home/kubeadmin/k8s/coredns/configmap-coredns-before.yaml
   become: true
   become_user: kubeadmin
+
+- name: kubectl delete -f /home/kubeadmin/k8s/coredns/service.yaml
+  shell: kubectl delete -f /home/kubeadmin/k8s/coredns/service.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: kubectl delete -f /home/kubeadmin/k8s/coredns/deployment.yaml
+  shell: kubectl delete -f /home/kubeadmin/k8s/coredns/deployment.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: kubectl delete -f /home/kubeadmin/k8s/coredns/configmap-corefile.yaml
+  shell: kubectl delete -f /home/kubeadmin/k8s/coredns/configmap-corefile.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: delete namespace {{ k8s.coredns.namespace }}
+  shell: kubectl delete namespace {{ k8s.coredns.namespace }}
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
