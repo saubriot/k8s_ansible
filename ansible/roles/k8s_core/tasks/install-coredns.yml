@@ -31,6 +31,7 @@
             health
             file /etc/coredns/{{ k8s.coredns.zone_name }}.db {{ k8s.coredns.zone_name }}
             cache 30
+            forward . {{ k8s.coredns.forward }}
             }
         {{ k8s.coredns.zone_name }}-db: |
           {{k8s.coredns.zone | indent(4)}}

@@ -17,6 +17,7 @@ k8s:
     port: 53
     zone_name: europe
     external_ip: 192.168.10.190
+    forward: 8.8.8.8 8.8.4.4
     zone: |
       europe.         IN  SOA ns1.europe. root.europe. 2015082541 7200 3600 1209600 3600
       europe.         IN  NS  ns1.europe.
