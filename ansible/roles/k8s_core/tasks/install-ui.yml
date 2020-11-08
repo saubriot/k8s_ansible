@@ -90,6 +90,7 @@
     cd /home/kubeadmin/cfssl 
     kubectl create secret tls tls-secret --key ./dashboard-key.pem --cert dashboard.pem -n kubernetes-dashboard
   become: true
+  ignore_errors: true
   become_user: kubeadmin
 
 - name: create file /home/kubeadmin/dashboard/k8s-dashboard-nginx.yaml
