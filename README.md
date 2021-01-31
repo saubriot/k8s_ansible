@@ -308,15 +308,8 @@ If you deploy Kubernetes on VMs using vagrant (see https://github.com/saubriot/k
 For libvirt :
 ```
 cd ~/k8s_vagrant/vagrant/libvirt/demo
-vagrant halt
-vagrant up
-```
-For Virtualbox :
-```
-cd ~/k8s_vagrant/vagrant/virtualbox/demo
-vagrant halt
-vagrant up
-```
+vagrant reload
+``````
 
 ### 4.5.f. Verify DNS configured on Administration host is working correctly
 
