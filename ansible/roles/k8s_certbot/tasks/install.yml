@@ -1,0 +1,7 @@
+---
+# file: roles/k8s_certbot/tasks/install.yml
+
+- include_tasks: "install-certbot.yml"
+  when: (task == "certbot" or task == "all") and {{ certificates.certbot.use_certbot }}
+
+

@@ -1,0 +1,12 @@
+---
+  # file: roles/k8s_certbot/tasks/main.yml
+  
+  - include_tasks: "install.yml"
+    when: operation == "install"
+  
+  - include_tasks: "delete.yml"
+    when: operation == "delete"
+  
+  - include_tasks: "check.yml"
+    when: operation == "check"
+  
