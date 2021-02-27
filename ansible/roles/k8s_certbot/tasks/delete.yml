@@ -1,0 +1,6 @@
+---
+# file: roles/k8s_certbot/tasks/delete.yml
+
+- include_tasks: "delete-certbot.yml"
+  when: task == "certbot" or task == "all"
+

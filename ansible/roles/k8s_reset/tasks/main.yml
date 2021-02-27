@@ -24,6 +24,18 @@
     state: absent
   when: reset
 
+- name: remove /var/lib/cni if exists
+  file:
+    path: /var/lib/cni
+    state: absent
+  when: reset
+
+- name: remove /var/lib/calico if exists
+  file:
+    path: /var/lib/calico
+    state: absent
+  when: reset
+
 - name: start service docker
   service:
     name: docker

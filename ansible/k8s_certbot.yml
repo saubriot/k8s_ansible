@@ -1,0 +1,7 @@
+---
+# file: k8s_certbot.yml
+- hosts: k8s_certbot
+  become: true
+  roles:
+    - common
+    - k8s_certbot
