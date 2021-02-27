@@ -2,7 +2,7 @@
 # file: roles/k8s_core/tasks/install-dashboard.yml
 
 - name: install kubernetes dashboard
-  shell: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta8/aio/deploy/recommended.yaml
+  shell: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.1.0/aio/deploy/recommended.yaml
   become: true
   become_user: kubeadmin
 
