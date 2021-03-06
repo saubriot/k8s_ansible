@@ -8,55 +8,233 @@
   become: true
   become_user: kubeadmin
 
-- name: create file /home/kubeadmin/cfssl/ca-csr.json
+- name: create file /home/kubeadmin/cfssl/root.json
   copy:
     content: |
       {
-        "CN": "{{ k8s.core.cfssl.domain }} Self Signed CA",
-        "key": {
-          "algo": "rsa",
-          "size": 2048
-        },
-        "names": [
-          {
-            "C": "{{ k8s.core.cfssl.ca.csr_C }}",
-            "L": "{{ k8s.core.cfssl.ca.csr_L }}",
-            "ST": "{{ k8s.core.cfssl.ca.csr_ST }}"
+          "CN": "{{ k8s.core.cfssl.root.cn }}",
+          "key": {
+              "algo": "rsa",
+              "size": 4096
+          },
+          "names": [{
+              "C": "{{ k8s.core.cfssl.root.ca.csr_C }}",
+              "L": "{{ k8s.core.cfssl.root.ca.csr_L }}",
+              "O": "{{ k8s.core.cfssl.root.ca.csr_ST }}"
+          }],
+          "ca": {
+              "expiry": "{{ k8s.core.cfssl.root.ca.expiry }}"
           }
-        ]
       }
-    dest: /home/kubeadmin/cfssl/ca-csr.json
+    dest: /home/kubeadmin/cfssl/root.json
   become: true
   become_user: kubeadmin
 
 - name: cfssl gencert
   shell: |
     cd /home/kubeadmin/cfssl 
-    cfssl gencert -initca ca-csr.json | cfssljson -bare ca -
+    cfssl gencert -initca root.json | cfssljson -bare root
+    mv root.pem root.crt
+    mv root-key.pem root.key
   become: true
   become_user: kubeadmin
 
-- name: create file /home/kubeadmin/cfssl/ca-config.json
+- name: create file /home/kubeadmin/cfssl/inter.json
   copy:
     content: |
       {
-        "signing": {
-          "default": {
-            "expiry": "8760h"
+          "CN": "{{ k8s.core.cfssl.inter.cn }}",
+          "key": {
+              "algo": "rsa",
+              "size": 4096
           },
-        "profiles": {
-          "web-servers": {
-            "usages": [
-              "signing",
-              "key encipherment",
-              "server auth",
-              "client auth"
-            ],
-            "expiry": "8760h"
-            }
+          "ca": {
+              "expiry": "{{ k8s.core.cfssl.inter.ca.expiry }}"
           }
-        }
       }
-    dest: /home/kubeadmin/cfssl/ca-config.json
+    dest: /home/kubeadmin/cfssl/inter.json
   become: true
   become_user: kubeadmin
+
+- name: cfssl gencert
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    cfssl gencert -initca inter.json | cfssljson -bare inter
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/cfssl/inter-sign.json
+  copy:
+    content: |
+      {
+          "signing": {
+              "default": {
+                  "expiry": "{{ k8s.core.cfssl.inter.ca.expiry }}",
+                  "usages": [
+                      "signing",
+                      "cert sign",
+                      "crl sign"
+                  ],
+                  "ca_constraint": {
+                      "is_ca": true
+                  }
+              }
+          }
+      }
+    dest: /home/kubeadmin/cfssl/inter-sign.json
+  become: true
+  become_user: kubeadmin
+
+- name: cfssl gencert
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    cfssl sign -ca root.crt -ca-key root.key --config inter-sign.json inter.csr | cfssljson -bare inter
+    mv inter.pem inter.crt
+    mv inter-key.pem inter.key
+    cat inter.crt root.crt > inter-fullchain.crt
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/cfssl/certif.json
+  copy:
+    content: |
+      {
+          "CN": "{{ k8s.core.cfssl.certif.cn }}",
+          "hosts": [
+              "{{ k8s.core.cfssl.certif.host }}",
+              "*.{{ k8s.core.cfssl.certif.host }}"
+          ],
+          "key": {
+              "algo": "rsa",
+              "size": 4096
+          }
+      }
+    dest: /home/kubeadmin/cfssl/certif.json
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/cfssl/certif-sign.json
+  copy:
+    content: |
+      {
+          "signing": {
+              "default": {
+                  "expiry": "{{ k8s.core.cfssl.certif.ca.expiry }}",
+                  "usages": ["key encipherment", "server auth"]
+              }
+          }
+      }
+    dest: /home/kubeadmin/cfssl/certif-sign.json
+  become: true
+  become_user: kubeadmin
+
+- name: cfssl gencert
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    cfssl gencert -ca=inter.crt -ca-key=inter.key -config=certif-sign.json certif.json | cfssljson -bare certif
+    mv certif.pem certif.crt
+    mv certif-key.pem certif.key
+    cat inter-fullchain.crt certif.crt > certif-fullchain.crt
+  become: true
+  become_user: kubeadmin
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+- name: create file /home/kubeadmin/cfssl/root-local.json
+  copy:
+    content: |
+      {
+          "CN": "{{ k8s.core.cfssl.local.cn }}",
+          "key": {
+              "algo": "rsa",
+              "size": 4096
+          },
+          "names": [{
+              "C": "{{ k8s.core.cfssl.local.ca.csr_C }}",
+              "L": "{{ k8s.core.cfssl.local.ca.csr_L }}",
+              "O": "{{ k8s.core.cfssl.local.ca.csr_ST }}"
+          }],
+          "ca": {
+              "expiry": "{{ k8s.core.cfssl.local.ca.expiry }}"
+          }
+      }
+    dest: /home/kubeadmin/cfssl/root-local.json
+  become: true
+  become_user: kubeadmin
+
+- name: cfssl gencert
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    cfssl gencert -initca root-local.json | cfssljson -bare root-local
+    mv root-local.pem root-local.crt
+    mv root-local-key.pem root-local.key
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/cfssl/inter-local.json
+  copy:
+    content: |
+      {
+          "CN": "{{ k8s.core.cfssl.local.inter.cn }}",
+          "key": {
+              "algo": "rsa",
+              "size": 4096
+          },
+          "ca": {
+              "expiry": "{{ k8s.core.cfssl.local.inter.ca.expiry }}"
+          }
+      }
+    dest: /home/kubeadmin/cfssl/inter-local.json
+  become: true
+  become_user: kubeadmin
+
+- name: cfssl gencert
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    cfssl gencert -initca inter-local.json | cfssljson -bare inter-local
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/cfssl/inter-local-sign.json
+  copy:
+    content: |
+      {
+          "signing": {
+              "default": {
+                  "expiry": "{{ k8s.core.cfssl.local.inter.ca.expiry }}",
+                  "usages": [
+                      "signing",
+                      "cert sign",
+                      "crl sign"
+                  ],
+                  "ca_constraint": {
+                      "is_ca": true
+                  }
+              }
+          }
+      }
+    dest: /home/kubeadmin/cfssl/inter-local-sign.json
+  become: true
+  become_user: kubeadmin
+
+- name: cfssl gencert
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    cfssl sign -ca root-local.crt -ca-key root-local.key --config inter-local-sign.json inter-local.csr | cfssljson -bare inter-local
+    mv inter-local.pem inter-local.crt
+    mv inter-local-key.pem inter-local.key
+    cat inter-local.crt root-local.crt > inter-local-fullchain.crt
+  become: true
+  become_user: kubeadmin
+

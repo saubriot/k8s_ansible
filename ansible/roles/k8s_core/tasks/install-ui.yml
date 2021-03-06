@@ -54,40 +54,12 @@
   become: true
   become_user: kubeadmin
 
-- name: create file /home/kubeadmin/cfssl/dashboard-csr.json
-  copy:
-    content: |
-      {
-          "CN": "{{ k8s.core.ui.csr_CN }}",
-          "hosts": [
-              "{{ k8s.core.ui.host }}"
-          ],
-          "key": {
-              "algo": "rsa",
-              "size": 2048
-          },
-          "names": [
-              {
-                  "C": "{{ k8s.core.cfssl.ca.csr_C }}",
-                  "L": "{{ k8s.core.cfssl.ca.csr_L }}",
-                  "ST": "{{ k8s.core.cfssl.ca.csr_ST }}"
-              }
-          ]
-      }
-    dest: /home/kubeadmin/cfssl/dashboard-csr.json
-  become: true
-  become_user: kubeadmin
-
-- name: cfssl gencert
-  shell: |
-    cd /home/kubeadmin/cfssl 
-    cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=web-servers dashboard-csr.json | cfssljson -bare dashboard
-  become: true
-  become_user: kubeadmin
 
 - name: create secret tls-secret
   shell: |
     cd /home/kubeadmin/cfssl 
+    cp certif.key dashboard-key.pem
+    cp certif.crt dashboard.pem
     kubectl create secret tls tls-secret --key ./dashboard-key.pem --cert dashboard.pem -n kubernetes-dashboard
   become: true
   ignore_errors: true
