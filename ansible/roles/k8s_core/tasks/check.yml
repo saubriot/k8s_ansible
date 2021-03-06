@@ -3,3 +3,6 @@
 
 - include_tasks: "check-ui-login.yml"
   when: task == "ui-login" or task == "all"
+
+- include_tasks: "check-certs.yml"
+  when: task == "certs" or task == "all"
