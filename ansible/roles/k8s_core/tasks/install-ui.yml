@@ -68,7 +68,7 @@
 - name: create file /home/kubeadmin/dashboard/k8s-dashboard-nginx.yaml
   copy:
     content: |
-      apiVersion: extensions/v1beta1
+      apiVersion: networking.k8s.io/v1
       kind: Ingress
       metadata:
         name: k8s-dashboard-nginx
@@ -85,9 +85,12 @@
           http:
             paths:
             - path: /
+              pathType: Prefix
               backend:
-                serviceName: kubernetes-dashboard
-                servicePort: 443
+                service:
+                  name: kubernetes-dashboard
+                  port: 
+                    number: 443
     dest: /home/kubeadmin/dashboard/k8s-dashboard-nginx.yaml
   become: true
   become_user: kubeadmin
