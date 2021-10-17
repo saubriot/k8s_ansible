@@ -2,10 +2,41 @@
 # file: roles/k8s_core/tasks/check-certs.yml
 
 
-- name: Fetch certificate for {{ k8s.core.cfssl.root.cn }}
+- name: Fetch certificate for {{ k8s.core.cfssl.inter.cn }}
   fetch:
     flat: yes
     src: /home/kubeadmin/cfssl/inter.crt
-    dest: "{{ all.fetch_directory }}/k8s-root-ca.crt"
+    dest: "{{ all.fetch_directory }}/k8s-ca-inter.crt"
   become: true
   become_user: kubeadmin
+  when: k8s.core.ui.use_cert_manager == false
+
+- name: get certificate for {{ k8s.core.cfssl.inter.cn }}
+  shell: |
+    kubectl get secret $(kubectl get cert ca-inter-tls -n {{ certificates.ca.namespace }} -o yaml|grep nextPrivateKeySecretName:|tail -1|awk '{print $2}') -n {{ certificates.ca.namespace }} -o yaml|grep tls.key|grep -v {}|awk '{print $2}'| base64 --decode
+  register: intermediate_cert_result
+  become: true
+  become_user: kubeadmin
+  when: k8s.core.ui.use_cert_manager
+
+- name: get certificate for {{ k8s.core.cfssl.inter.cn }}
+  shell: |
+    echo "{{ intermediate_cert_result.stdout }}" > /home/kubeadmin/cfssl/cert-manager-inter.crt
+  become: true
+  become_user: kubeadmin
+  when: k8s.core.ui.use_cert_manager
+
+- name: Fetch certificate for {{ k8s.core.cfssl.inter.cn }}
+  fetch:
+    flat: yes
+    src: /home/kubeadmin/cfssl/cert-manager-inter.crt
+    dest: "{{ all.fetch_directory }}/k8s-ca-inter.crt"
+  become: true
+  become_user: kubeadmin
+  when: k8s.core.ui.use_cert_manager
+
+- name: copy/paste certificate for {{ k8s.core.cfssl.inter.cn }}
+  debug:
+    msg: "{{ intermediate_cert_result.stdout }}"
+  when: k8s.core.ui.use_cert_manager
+

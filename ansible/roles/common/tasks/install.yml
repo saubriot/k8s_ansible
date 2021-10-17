@@ -27,13 +27,16 @@
     echo 'net.ipv6.conf.all.disable_ipv6 = 1' > /etc/sysctl.d/90-disable-ipv6.conf
     sysctl -p -f /etc/sysctl.d/90-disable-ipv6.conf
 
-- name: install the package "net-tools, golang-cfssl, iptables-persistent, software-properties-common"
+- name: install the package "net-tools, golang-cfssl, iptables-persistent, software-properties-common gpg curl"
   apt:
     pkg: 
     - net-tools
     - golang-cfssl
     - iptables-persistent
     - software-properties-common
+    - gpg
+    - curl
+
 
 - name: create file /etc/sysctl.d/90-kubelet.conf
   copy:

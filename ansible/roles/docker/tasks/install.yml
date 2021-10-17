@@ -20,9 +20,8 @@
 - name: install packages "docker-ce, docker-ce-cli, containerd.io"
   apt:
     pkg:
-    - docker-ce
-    - docker-ce-cli
-    - docker-ce-cli
+    - docker-ce=5:19.03.15~3-0~debian-buster
+    - docker-ce-cli=5:19.03.15~3-0~debian-buster
     - containerd.io
 
 - name: create file /etc/docker/daemon.json

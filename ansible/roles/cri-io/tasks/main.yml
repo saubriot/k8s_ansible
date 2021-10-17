@@ -1,0 +1,6 @@
+---
+  # file: roles/docker/tasks/main.yml
+  
+  - include_tasks: "install.yml"
+    when: operation == "install"
+  
