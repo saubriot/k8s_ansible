@@ -1,0 +1,57 @@
+---
+# file: roles/k8s_core/tasks/install-weave-scope.yml
+
+- name: install weave scope
+  shell: kubectl apply -f "https://cloud.weave.works/k8s/scope.yaml?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+  become: true
+  become_user: kubeadmin
+
+- name: create directory /home/kubeadmin/weave-scope
+  file:
+    path: /home/kubeadmin/weave-scope
+    state: directory
+  become: true
+  become_user: kubeadmin
+
+- name: create secret tls-secret
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    cp certif.key weave-scope-key.pem
+    cp certif.crt weave-scope.pem
+    kubectl create secret tls tls-secret --key ./weave-scope-key.pem --cert weave-scope.pem -n weave
+  become: true
+  ignore_errors: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/weave-scope/k8s-weave-scope-nginx.yaml
+  copy:
+    content: |
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: k8s-weave-scope-nginx
+        namespace: weave
+        annotations:
+          kubernetes.io/ingress.class: nginx
+      spec:
+        tls:
+        - secretName: tls-secret
+        rules:
+        - host: {{ k8s.core.weave_scope.host }}
+          http:
+            paths:
+            - path: /
+              pathType: Prefix
+              backend:
+                service:
+                  name: weave-scope-app
+                  port: 
+                    number: 80
+    dest: /home/kubeadmin/weave-scope/k8s-weave-scope-nginx.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: apply weave-scope nginx ingress
+  shell: kubectl apply -f /home/kubeadmin/weave-scope/k8s-weave-scope-nginx.yaml
+  become: true
+  become_user: kubeadmin
