@@ -1,0 +1,13 @@
+---
+# file: k8s_add_nodes.yml
+- hosts: kubeadmin
+  become: true
+  roles:
+    - k8s_join_node_token
+- hosts: k8s_add_nodes
+  become: true
+  roles:
+    - common
+    - cri-io
+    - k8s
+    - k8s_add_nodes

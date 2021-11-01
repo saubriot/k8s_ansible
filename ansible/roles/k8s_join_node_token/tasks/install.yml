@@ -1,0 +1,18 @@
+---
+# file: roles/k8s_join_node_token/tasks/main.yml
+
+- name: kubeadm create join  single master
+  shell: kubeadm token create --print-join-command
+  register: kubeadm_join_node_result
+
+- name: store kubeadm join command for node
+  copy:
+    content: "{{ kubeadm_join_node_result.stdout }}"
+    dest: "/var/log/k8s_join_node_file_{{ all.environment }}"
+
+- name: fetch kubeadm join command for node
+  fetch:
+    src: "/var/log/k8s_join_node_file_{{ all.environment }}"
+    dest: "{{ all.fetch_directory }}/"
+    flat: yes
+  
