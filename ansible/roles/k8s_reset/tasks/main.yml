@@ -12,18 +12,6 @@
     state: absent
   when: reset
 
-- name: stop service docker
-  service:
-    name: docker
-    state: stopped
-  when: reset
-
-- name: remove /var/lib/docker if exists
-  file:
-    path: /var/lib/docker
-    state: absent
-  when: reset
-
 - name: remove /var/lib/cni if exists
   file:
     path: /var/lib/cni
@@ -36,8 +24,20 @@
     state: absent
   when: reset
 
-- name: start service docker
-  service:
-    name: docker
-    state: started
+- name: remove /var/lib/weave if exists
+  file:
+    path: /var/lib/weave
+    state: absent
+  when: reset
+
+#- name: delete (weave|vxlan|vethwe|tun) interfaces if exists
+#  shell: |
+#      ip link list|cut -f2 -d:|cut -f1 -d@|egrep '(weave)' | xargs ip link delete
+#      ip link list|cut -f2 -d:|cut -f1 -d@|egrep '(vxlan)' | xargs ip link delete
+#      ip link list|cut -f2 -d:|cut -f1 -d@|egrep '(vethwe-datapath)' | xargs ip link delete
+#  ignore_errors: true
+#  when: reset
+
+- name: reboot the host
+  reboot:
   when: reset
