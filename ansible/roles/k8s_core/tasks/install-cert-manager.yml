@@ -1,0 +1,180 @@
+---
+# file: roles/k8s_core/tasks/install-cert-manager.yml
+
+- name: install cert-manager
+  shell: |
+    kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.2.0/cert-manager.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: create namespace {{ certificates.ca.namespace }} 
+  shell: |
+    kubectl create namespace {{ certificates.ca.namespace }} 
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: create ca secret
+  shell: |
+    cd /home/kubeadmin/cfssl
+    kubectl create secret tls ca-tls --cert root.crt --key root.key --namespace {{ certificates.ca.namespace }}
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: create ca-local secret
+  shell: |
+    cd /home/kubeadmin/cfssl
+    kubectl create secret tls ca-local-tls --cert root-local.crt --key root-local.key --namespace {{ certificates.ca.namespace }}
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: create file /home/kubeadmin/cfssl/cert-manager-ca-issuer.yaml
+  copy:
+    content: |
+      apiVersion: cert-manager.io/v1
+      kind: Issuer
+      metadata:
+        name: ca-issuer
+        namespace: {{ certificates.ca.namespace }}
+      spec:
+        ca:
+          secretName: ca-tls
+    dest: /home/kubeadmin/cfssl/cert-manager-ca-issuer.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: create ca issuer
+  shell: |
+    kubectl apply -f /home/kubeadmin/cfssl/cert-manager-ca-issuer.yaml
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: create file /home/kubeadmin/cfssl/cert-manager-ca-local-issuer.yaml
+  copy:
+    content: |
+      apiVersion: cert-manager.io/v1
+      kind: Issuer
+      metadata:
+        name: ca-local-issuer
+        namespace: {{ certificates.ca.namespace }}
+      spec:
+        ca:
+          secretName: ca-local-tls
+    dest: /home/kubeadmin/cfssl/cert-manager-ca-local-issuer.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: create ca local issuer
+  shell: |
+    kubectl apply -f /home/kubeadmin/cfssl/cert-manager-ca-local-issuer.yaml
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: create file /home/kubeadmin/cfssl/cert-manager-ca-inter-cert.yaml
+  copy:
+    content: |
+      apiVersion: cert-manager.io/v1
+      kind: Certificate
+      metadata:
+        name: ca-inter-tls
+        namespace: {{ certificates.ca.namespace }}
+      spec:
+        secretName: ca-inter-tls
+        isCA: true
+        usages:
+          - signing
+          - cert sign
+          - crl sign
+        issuerRef:
+          name: ca-tls
+          kind: Issuer
+        commonName: "{{ k8s.core.cfssl.inter.cn }}"
+    dest: /home/kubeadmin/cfssl/cert-manager-ca-inter-cert.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: create ca inter certificate
+  shell: |
+    kubectl apply -f /home/kubeadmin/cfssl/cert-manager-ca-inter-cert.yaml
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: create file /home/kubeadmin/cfssl/cert-manager-ca-local-inter-cert.yaml
+  copy:
+    content: |
+      apiVersion: cert-manager.io/v1
+      kind: Certificate
+      metadata:
+        name: ca-local-inter-tls
+        namespace: {{ certificates.ca.namespace }}
+      spec:
+        secretName: ca-local-inter-tls
+        isCA: true
+        usages:
+          - signing
+          - cert sign
+          - crl sign
+        issuerRef:
+          name: ca-local-tls
+          kind: Issuer
+        commonName: "{{ k8s.core.cfssl.local.inter.cn }}"
+    dest: /home/kubeadmin/cfssl/cert-manager-ca-local-inter-cert.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: create ca local inter certificate
+  shell: |
+    kubectl apply -f /home/kubeadmin/cfssl/cert-manager-ca-local-inter-cert.yaml
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: create file /home/kubeadmin/cfssl/cert-manager-ca-cluster-issuer.yaml
+  copy:
+    content: |
+      apiVersion: cert-manager.io/v1
+      kind: ClusterIssuer
+      metadata:
+        name: ca-intermediate-cluster-issuer
+        namespace: {{ certificates.ca.namespace }}
+      spec:
+        ca:
+          secretName: ca-inter-tls
+    dest: /home/kubeadmin/cfssl/cert-manager-ca-cluster-issuer.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: create ca intermediate cluster issuer
+  shell: |
+    kubectl apply -f /home/kubeadmin/cfssl/cert-manager-ca-cluster-issuer.yaml
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: create file /home/kubeadmin/cfssl/cert-manager-ca-local-cluster-issuer.yaml
+  copy:
+    content: |
+      apiVersion: cert-manager.io/v1
+      kind: ClusterIssuer
+      metadata:
+        name: ca-local-intermediate-cluster-issuer
+        namespace: {{ certificates.ca.namespace }}
+      spec:
+        ca:
+          secretName: ca-local-inter-tls
+    dest: /home/kubeadmin/cfssl/cert-manager-ca-local-cluster-issuer.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: create ca local intermediate cluster issuer
+  shell: |
+    kubectl apply -f /home/kubeadmin/cfssl/cert-manager-ca-local-cluster-issuer.yaml
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
