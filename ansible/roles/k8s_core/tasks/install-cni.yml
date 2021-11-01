@@ -14,7 +14,24 @@
   when: k8s.core.cni == "flannel"
 
 - name: install CNI "calico"
-  shell: kubectl apply -f https://docs.projectcalico.org/v3.11/manifests/calico.yaml
+  file:
+    path: /home/kubeadmin/calico
+    state: directory
   become: true
   become_user: kubeadmin
+
+- name: install CNI "calico"
+  shell: |
+    curl https://docs.projectcalico.org/manifests/calico-typha.yaml -o /home/kubeadmin/calico/calico.yaml
+    kubectl apply -f /home/kubeadmin/calico/calico.yaml
+    curl -o /home/kubeadmin/calico/calicoctl -O -L "https://github.com/projectcalico/calicoctl/releases/download/v3.19.1/calicoctl"
+  become: true
+  become_user: kubeadmin
+  when: k8s.core.cni == "calico"
+
+- name: install CNI "calico"
+  shell: |
+    cp -nf /home/kubeadmin/calico/calicoctl /usr/local/bin/
+    chmod +x /usr/local/bin/calicoctl
+  become: true
   when: k8s.core.cni == "calico"
