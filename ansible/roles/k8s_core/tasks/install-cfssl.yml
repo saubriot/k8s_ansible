@@ -142,15 +142,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
 - name: create file /home/kubeadmin/cfssl/root-local.json
   copy:
     content: |
