@@ -27,6 +27,11 @@
     echo 'net.ipv6.conf.all.disable_ipv6 = 1' > /etc/sysctl.d/90-disable-ipv6.conf
     sysctl -p -f /etc/sysctl.d/90-disable-ipv6.conf
 
+- name: increase the conntrack table
+  shell: |
+    sysctl -w net.netfilter.nf_conntrack_max=1000000
+    echo "net.netfilter.nf_conntrack_max=1000000" >> /etc/sysctl.conf
+
 - name: install the package "net-tools, golang-cfssl, iptables-persistent, software-properties-common gpg curl"
   apt:
     pkg: 
@@ -37,6 +42,10 @@
     - gpg
     - curl
 
+- name: Remove "network-manager" package
+  apt:
+    name: network-manager
+    state: absent
 
 - name: create file /etc/sysctl.d/90-kubelet.conf
   copy:
