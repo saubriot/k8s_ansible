@@ -7,6 +7,6 @@
   become_user: kubeadmin
 
 - name: delete metallb load balancer
-  shell: kubectl delete -f https://raw.githubusercontent.com/google/metallb/v0.8.3/manifests/metallb.yaml
+  shell: kubectl delete -f https://raw.githubusercontent.com/google/metallb/v0.11.0/manifests/metallb.yaml
   become: true
   become_user: kubeadmin
