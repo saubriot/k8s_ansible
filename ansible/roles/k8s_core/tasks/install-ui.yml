@@ -1,8 +1,8 @@
 ---
 # file: roles/k8s_core/tasks/install-dashboard.yml
 
-- name: install kubernetes dashboard
-  shell: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.1.0/aio/deploy/recommended.yaml
+- name: install dashbaord - kubernetes dashboard
+  shell: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.4.0/aio/deploy/recommended.yaml
   become: true
   become_user: kubeadmin
 
@@ -54,6 +54,45 @@
   become: true
   become_user: kubeadmin
 
+- name: create file /home/kubeadmin/dashboard/cert-manager-cert-dashboard.yaml
+  copy:
+    content: |
+      apiVersion: cert-manager.io/v1
+      kind: Certificate
+      metadata:
+        name: dashboard
+        namespace: kubernetes-dashboard
+      spec:
+        secretName: tls-dashboard
+        duration: {{ k8s.core.cfssl.certif.ca.expiry }}
+        renewBefore: {{ k8s.core.cfssl.certif.ca.renewBefore }}
+        subject:
+          organizations:
+          - flowers
+        commonName: dashboard.k8s.flowers
+        isCA: false
+        privateKey:
+          algorithm: RSA
+          encoding: PKCS1
+          size: 4096
+        usages:
+          - server auth
+          - client auth
+        dnsNames:
+        - dashboard.k8s.flowers
+        issuerRef:
+          name: ca-intermediate-cluster-issuer
+          group: cert-manager.io
+    dest: /home/kubeadmin/dashboard/cert-manager-cert-dashboard.yaml
+  become: true
+  become_user: kubeadmin
+  when: k8s.core.ui.use_cert_manager
+
+- name: create cert-manager certificate
+  shell: kubectl apply -f /home/kubeadmin/dashboard/cert-manager-cert-dashboard.yaml
+  become: true
+  become_user: kubeadmin
+  when: k8s.core.ui.use_cert_manager
 
 - name: create secret tls-secret
   shell: |
@@ -94,6 +133,38 @@
     dest: /home/kubeadmin/dashboard/k8s-dashboard-nginx.yaml
   become: true
   become_user: kubeadmin
+  when: k8s.core.ui.use_cert_manager == false
+
+- name: create file /home/kubeadmin/dashboard/k8s-dashboard-nginx.yaml
+  copy:
+    content: |
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: k8s-dashboard-nginx
+        namespace: kubernetes-dashboard
+        annotations:
+          kubernetes.io/ingress.class: nginx
+          nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+          nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+      spec:
+        tls:
+        - secretName: tls-dashboard
+        rules:
+        - host: {{ k8s.core.ui.host }}
+          http:
+            paths:
+            - path: /
+              pathType: Prefix
+              backend:
+                service:
+                  name: kubernetes-dashboard
+                  port: 
+                    number: 443
+    dest: /home/kubeadmin/dashboard/k8s-dashboard-nginx.yaml
+  become: true
+  become_user: kubeadmin
+  when: k8s.core.ui.use_cert_manager
 
 - name: apply dashboard nginx ingress
   shell: kubectl apply -f /home/kubeadmin/dashboard/k8s-dashboard-nginx.yaml
