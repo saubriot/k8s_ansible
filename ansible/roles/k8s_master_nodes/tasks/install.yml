@@ -12,12 +12,36 @@
     shell: /bin/bash
     append: yes
 
+- name: kubeadm config
+  shell: kubeadm config print init-defaults --component-configs=KubeletConfiguration > /tmp/kubeadm_config
+
+- replace:
+    path: /tmp/kubeadm_config
+    regexp: '(\s+)criSocket: /var/run/dockershim.sock(\s+.*)?$'
+    replace: '\1criSocket: unix:///var/run/crio/crio.sock\2'
+    backup: yes
+
+- replace:
+    path: /tmp/kubeadm_config
+    regexp: '(\s+)advertiseAddress: 1.2.3.4(\s+.*)?$'
+    replace: '\1advertiseAddress: {{ ansible_host }}\2'
+    backup: yes
+
+- name: add pod-network-cidr to config
+  lineinfile:
+    path: /tmp/kubeadm_config
+    insertafter: "^networking:" 
+    line: '  podSubnet: {{ k8s.master.pod_network_cidr }}'
+    firstmatch: yes
+    state: present  
+    backup: yes
+
 - name: kubeadm init multi master
   shell: kubeadm init --control-plane-endpoint {{ k8s.master.load_balancer_ip }}:{{ k8s.master.apiserver_port }} --upload-certs --pod-network-cidr {{ k8s.master.pod_network_cidr }} {{ k8s.master.kubeadm_extra }} > /var/log/kubeadm_init.log
   when: init_master == "multi" 
 
 - name: kubeadm init single master
-  shell: kubeadm init --pod-network-cidr {{ k8s.master.pod_network_cidr }} --apiserver-advertise-address {{ ansible_host }} {{ k8s.master.kubeadm_extra }} > /var/log/kubeadm_init.log
+  shell: kubeadm init --config=/tmp/kubeadm_config {{ k8s.master.kubeadm_extra }} > /var/log/kubeadm_init.log
   when: init_master == "single" 
 
 - name: get kubadm join command for master node
