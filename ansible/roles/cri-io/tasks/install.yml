@@ -1,8 +1,8 @@
 ---
 # file: roles/cri-io/tasks/install.yml
 
-- name: add apt buster-backports source list
-  shell: echo 'deb http://deb.debian.org/debian buster-backports main' > /etc/apt/sources.list.d/backports.list
+- name: add apt bullseye-backports source list
+  shell: echo 'deb http://deb.debian.org/debian bullseye-backports main' > /etc/apt/sources.list.d/backports.list
 
 - name: apt update
   apt:
@@ -11,7 +11,7 @@
 - name: install package libseccomp2
   apt:
     name: libseccomp2
-    default_release: buster-backports
+    default_release: bullseye-backports
     update_cache: yes
     state: latest
 
@@ -46,3 +46,4 @@
   service:
     name: crio
     state: restarted
+   
