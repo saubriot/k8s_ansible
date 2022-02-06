@@ -1,5 +1,5 @@
 ---
-# file: platform.yml
+# file : platform.yml
 - import_playbook: k8s_master_nodes.yml
 - import_playbook: k8s_nodes.yml
 - import_playbook: k8s_core.yml
