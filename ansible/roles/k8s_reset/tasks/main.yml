@@ -38,6 +38,12 @@
 #  ignore_errors: true
 #  when: reset
 
+- name: remove openebs storage class hostpath if exists
+  file:
+    path: "{{ k8s.openebs.storageclass.hostpath }}"
+    state: absent
+  when: reset
+
 - name: reboot the host
   reboot:
   when: reset
