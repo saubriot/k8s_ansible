@@ -110,3 +110,9 @@
   shell: |
     cp -i /etc/kubernetes/admin.conf /home/kubeadmin/.kube/config
     chown -R kubeadmin:kubeadmin /home/kubeadmin
+
+- name: create openebs storage class hostpath
+  file:
+    path: "{{ k8s.openebs.storageclass.hostpath }}"
+    state: directory
+    mode: '0755'

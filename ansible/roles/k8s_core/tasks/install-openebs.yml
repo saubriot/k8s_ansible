@@ -1,0 +1,41 @@
+---
+# file: roles/k8s_core/tasks/install-openebs.yml
+
+- name: install openebs operator
+  shell: |
+    kubectl apply -f https://openebs.github.io/charts/openebs-operator.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: create directory /home/kubeadmin/openebs
+  file:
+    path: /home/kubeadmin/openebs
+    state: directory
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/openebs/storageclass.yaml
+  copy:
+    content: |
+      apiVersion: storage.k8s.io/v1
+      kind: StorageClass
+      metadata:
+        name: local-hostpath
+        annotations:
+          openebs.io/cas-type: local
+          cas.openebs.io/config: |
+            - name: StorageType
+              value: hostpath
+            - name: BasePath
+              value: {{ k8s.openebs.storageclass.hostpath }}
+      provisioner: openebs.io/local
+      reclaimPolicy: Delete
+      volumeBindingMode: WaitForFirstConsumer
+    dest: /home/kubeadmin/openebs/storageclass.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: kubectl apply -f /home/kubeadmin/openebs/storageclass.yaml
+  shell: kubectl apply -f /home/kubeadmin/openebs/storageclass.yaml
+  become: true
+  become_user: kubeadmin
