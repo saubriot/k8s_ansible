@@ -17,7 +17,7 @@
 
 - replace:
     path: /tmp/kubeadm_config
-    regexp: '(\s+)criSocket: /var/run/dockershim.sock(\s+.*)?$'
+    regexp: '(\s+)criSocket: unix:///var/run/containerd/containerd.sock(\s+.*)?$'
     replace: '\1criSocket: unix:///var/run/crio/crio.sock\2'
     backup: yes
 

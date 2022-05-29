@@ -1,5 +1,5 @@
 ---
-# file: roles/k8s_core/tasks/check-dashboard-login.yml
+# file: roles/k8s_core/tasks/check-dashboard.yml
 
 - name: get admin user token
   shell: |

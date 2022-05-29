@@ -4,20 +4,20 @@
 - include_tasks: "install-cni.yml"
   when: task == "cni" or task == "all"
 
-- include_tasks: "install-cfssl.yml"
-  when: task == "cfssl" or task == "all"
-
 - include_tasks: "install-metallb.yml"
   when: task == "metallb" or task == "all"
 
 - include_tasks: "install-nginx.yml"
   when: task == "nginx" or task == "all"
 
-- include_tasks: "install-ui.yml"
-  when: task == "ui" or task == "all"
+- include_tasks: "install-cert-manager.yml"
+  when: task == "cert-manager" or task == "all"
 
-- include_tasks: "install-coredns.yml"
-  when: task == "coredns" or task == "all"
+- include_tasks: "install-dashboard.yml"
+  when: task == "dashboard" or task == "all"
+
+#- include_tasks: "install-coredns.yml"
+#  when: task == "coredns" or task == "all"
 
 - include_tasks: "install-openebs.yml"
   when: task == "openebs" or task == "all"

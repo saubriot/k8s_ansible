@@ -1,9 +1,10 @@
 ---
 # file: roles/k8s_core/tasks/install-openebs.yml
 
-- name: install openebs operator
+- name: install openebs & cstor operator
   shell: |
     kubectl apply -f https://openebs.github.io/charts/openebs-operator.yaml
+    kubectl apply -f https://openebs.github.io/charts/cstor-operator.yaml
   become: true
   become_user: kubeadmin
 
