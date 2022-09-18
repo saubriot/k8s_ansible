@@ -5,6 +5,7 @@
   shell: |
     kubectl get configmap kube-proxy -n kube-system -o yaml | sed -e "s/strictARP: false/strictARP: true/" | kubectl apply -f - -n kube-system
     kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/{{ k8s.core.metallb.version }}/config/manifests/metallb-native.yaml
+    kubectl wait pods -n metallb-system --all --for condition=Ready --timeout=120s
   become: true
   become_user: kubeadmin
 
@@ -18,23 +19,29 @@
 - name: create file /home/kubeadmin/metallb/config.yaml
   copy:
     content: |
-      apiVersion: v1
-      kind: ConfigMap
+      apiVersion: metallb.io/v1beta1
+      kind: IPAddressPool
       metadata:
+        name: {{ k8s.core.metallb.name }}
         namespace: metallb-system
-        name: config
-      data:
-        config: |
-          address-pools:
-          - name: default
-            protocol: layer2
-            addresses:
-            - {{ k8s.core.metallb.ip_range }}
+      spec:
+        addresses:
+        - {{ k8s.core.metallb.addresses }}
+      ---
+      apiVersion: metallb.io/v1beta1
+      kind: BGPAdvertisement
+      metadata:
+        name: external
+        namespace: metallb-system
+      spec:
+        ipAddressPools:
+        - {{ k8s.core.metallb.name }}
+
     dest: /home/kubeadmin/metallb/config.yaml
   become: true
   become_user: kubeadmin
 
-- name: apply metallb load balancer configuration
+- name: apply metallb lconfiguration
   shell: kubectl apply -f /home/kubeadmin/metallb/config.yaml
   become: true
   become_user: kubeadmin
