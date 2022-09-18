@@ -5,13 +5,13 @@
   shell: kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
   become: true
   become_user: kubeadmin
-  when: k8s.core.cni == "weave"
+  when: k8s.core.cni.vendor == "weave"
 
 - name: install CNI "flannel"
   shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
   become: true
   become_user: kubeadmin
-  when: k8s.core.cni == "flannel"
+  when: k8s.core.cni.vendor == "flannel"
 
 - name: install CNI "calico"
   file:
@@ -24,14 +24,14 @@
   shell: |
     curl https://docs.projectcalico.org/manifests/calico-typha.yaml -o /home/kubeadmin/calico/calico.yaml
     kubectl apply -f /home/kubeadmin/calico/calico.yaml
-    curl -o /home/kubeadmin/calico/calicoctl -O -L "https://github.com/projectcalico/calicoctl/releases/download/v3.19.1/calicoctl"
+    curl -o /home/kubeadmin/calico/calicoctl -O -L "https://github.com/projectcalico/calicoctl/releases/download/{{ k8s.core.cni.calico.version }}/calicoctl"
   become: true
   become_user: kubeadmin
-  when: k8s.core.cni == "calico"
+  when: k8s.core.cni.vendor == "calico"
 
 - name: install CNI "calico"
   shell: |
     cp -nf /home/kubeadmin/calico/calicoctl /usr/local/bin/
     chmod +x /usr/local/bin/calicoctl
   become: true
-  when: k8s.core.cni == "calico"
+  when: k8s.core.cni.vendor == "calico"

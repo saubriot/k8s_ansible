@@ -1,0 +1,18 @@
+---
+# file: roles/k8s_core/tasks/delete-dashboard.yml
+
+- name: delete dashboard nginx ingress
+  shell: kubectl delete -f /home/kubeadmin/dashboard/k8s-dashboard-nginx.yaml
+  become: true
+  become_user: kubeadmin
+  tags : core, dashboard
+
+- name: delete secret dashboard-tls
+  shell: kubectl delete secret tls dashboard-tls -n kubernetes-dashboard
+  become: true
+  become_user: kubeadmin
+
+- name: delete dashbaord - kubernetes dashboard
+  shell: kubectl delete -f https://raw.githubusercontent.com/kubernetes/dashboard/{{ k8s.core.dashboard.version }}/aio/deploy/recommended.yaml
+  become: true
+  become_user: kubeadmin
