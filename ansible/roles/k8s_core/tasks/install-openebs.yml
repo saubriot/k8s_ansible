@@ -40,3 +40,8 @@
   shell: kubectl apply -f /home/kubeadmin/openebs/storageclass.yaml
   become: true
   become_user: kubeadmin
+
+- name: set "local-hostpath" as default Storage Class
+  shell: 'kubectl patch storageclass local-hostpath -p "{\"metadata\": {\"annotations\":{\"storageclass.kubernetes.io/is-default-class\":\"true\"}}}"'
+  become: true
+  become_user: kubeadmin
