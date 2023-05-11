@@ -3,16 +3,6 @@ all:
   fetch_directory: /tmp
   environment: prod
 
-certificates:
-  ca:
-    namespace: pki-certs
-  use_self_signed_certificates: false
-  certbot:
-    use_certbot: true
-    email: saubriot@gmail.com
-    k8s:
-      domain: k8s.techfab.io
-
 k8s:
   apt:
     version: 1.27.1-00
@@ -47,21 +37,6 @@ k8s:
       ns1                   IN  A   192.168.110.180
 
       dashboard.k8s         IN  A   192.168.110.180
-      rook-ceph.k8s         IN  A   192.168.110.180
-      grafana.k8s           IN  A   192.168.110.180
-      kibana.k8s            IN  A   192.168.110.180
-      elastic.k8s           IN  A   192.168.110.180
-      minio.k8s             IN  A   192.168.110.180
-      console.minio.k8s     IN  A   192.168.110.180
-      keycloak.k8s          IN  A   192.168.110.180      
-      nexus.k8s             IN  A   192.168.110.180      
-      gitlab.k8s            IN  A   192.168.110.180      
-      ldap.k8s              IN  A   192.168.110.180      
-      admin.ldap.k8s        IN  A   192.168.110.180      
-
-      gitea.k8s             IN  A   192.168.110.180
-      drone.k8s             IN  A   192.168.110.180
-      harbor.k8s            IN  A   192.168.110.180
 
   core:
     cni: 
@@ -92,15 +67,9 @@ k8s:
       csr_CN: dashboard.k8s.flowers
       host: dashboard.k8s.flowers
       version: v2.7.0
-
-    weave_scope:
-      csr_CN: weave-scope.k8s.flowers
-      host: weave-scope.k8s.flowers
-      use_cert_manager: true
       
     coredns: 
       domain: k8s.flowers
       port: 53
       forward: 192.168.110.180
-
 
