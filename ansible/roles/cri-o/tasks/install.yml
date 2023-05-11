@@ -1,5 +1,5 @@
 ---
-# file: roles/cri-io/tasks/install.yml
+# file: roles/cri-o/tasks/install.yml
 
 - name: add apt bullseye-backports source list
   shell: echo 'deb http://deb.debian.org/debian bullseye-backports main' > /etc/apt/sources.list.d/backports.list
@@ -20,7 +20,7 @@
     export OS={{ k8s.cri.crio.os }}
     export VERSION={{ k8s.cri.crio.version }}
     echo "deb [signed-by=/usr/share/keyrings/libcontainers-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
-    echo "deb [signed-by=/usr/share/keyrings/libcontainers-crio-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$VERSION/$OS/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$VERSION.list
+    echo "deb [signed-by=/usr/share/keyrings/libcontainers-crio-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$VERSION/$OS/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o.list
     mkdir -p /usr/share/keyrings
     rm -f /usr/share/keyrings/libcontainers-archive-keyring.gpg
     rm -f /usr/share/keyrings/libcontainers-crio-archive-keyring.gpg
@@ -31,11 +31,15 @@
   apt:
     update_cache: yes
 
-- name: install packages "cri-io cri-io-runc"
+- name: install packages "cri-o cri-o-runc"
   apt:
     pkg:
     - cri-o
     - cri-o-runc
+
+- name: apt upgrade
+  apt:
+    upgrade: yes
 
 - name: enable service crio
   service:
