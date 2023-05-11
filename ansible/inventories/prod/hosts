@@ -11,6 +11,9 @@ frangipanier.flowers ansible_host=192.168.110.91
 rose.flowers ansible_host=192.168.110.96
 ibiscus.flowers ansible_host=192.168.110.94 reset=true
 
+[k8s_core]
+iris.flowers ansible_host=192.168.110.52
+
 [kubeadmin]
 iris.flowers ansible_host=192.168.110.52
 
