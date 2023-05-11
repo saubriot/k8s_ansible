@@ -4,7 +4,7 @@
 - name: install cert-manager
   shell: |
     kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/{{ k8s.core.cert_manager.version }}/cert-manager.yaml
-    kubectl wait pods -n cert-manager --all --for condition=Ready --timeout=120s
+    kubectl wait --namespace cert-manager --for=condition=ready pod --all --timeout=90s
   become: true
   become_user: kubeadmin
 

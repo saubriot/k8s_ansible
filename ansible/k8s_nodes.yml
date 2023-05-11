@@ -4,7 +4,6 @@
   become: true
   roles:
     - common
-#    - docker
-    - cri-io
+    - cri-o
     - k8s
     - k8s_nodes

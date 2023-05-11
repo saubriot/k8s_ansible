@@ -8,6 +8,6 @@
   become: true
   roles:
     - common
-    - cri-io
+    - cri-o
     - k8s
     - k8s_add_nodes

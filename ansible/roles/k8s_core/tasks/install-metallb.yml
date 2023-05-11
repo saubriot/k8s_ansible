@@ -3,8 +3,16 @@
 
 - name: install metallb load balancer
   shell: |
+    kubectl get configmap kube-proxy -n kube-system -o yaml | sed -e "s/strictARP: false/strictARP: true/" | kubectl apply -f - -n kube-system
     kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/{{ k8s.core.metallb.version }}/config/manifests/metallb-native.yaml
-    kubectl wait pods -n metallb-system --all --for condition=Ready --timeout=120s
+    kubectl wait --namespace metallb-system --for=condition=ready pod --selector=component=controller --timeout=90s
+  become: true
+  become_user: kubeadmin
+
+- name: install metallb load balancer
+  shell: |
+    kubectl get configmap kube-proxy -n kube-system -o yaml | sed -e "s/strictARP: false/strictARP: true/" | kubectl apply -f - -n kube-system
+    kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/{{ k8s.core.metallb.version }}/config/manifests/metallb-native.yaml
   become: true
   become_user: kubeadmin
 
@@ -15,62 +23,39 @@
   become: true
   become_user: kubeadmin
 
-- name: create file /home/kubeadmin/metallb/ip_address_pool.yaml
+- name: create file /home/kubeadmin/metallb/pool.yaml
   copy:
-    content: |
+    content: |      
       apiVersion: metallb.io/v1beta1
       kind: IPAddressPool
       metadata:
-        name: {{ k8s.core.metallb.name }}
+        name: first-pool
         namespace: metallb-system
       spec:
         addresses:
-        - {{ k8s.core.metallb.addresses }}
-
-    dest: /home/kubeadmin/metallb/ip_address_pool.yaml
+        - {{ k8s.core.metallb.ip_range }}
+    dest: /home/kubeadmin/metallb/pool.yaml
   become: true
   become_user: kubeadmin
 
-- name: apply metallb IP address pool
-  shell: kubectl apply -f /home/kubeadmin/metallb/ip_address_pool.yaml
+- name: apply metallb load balancer pool configuration
+  shell: kubectl apply -f /home/kubeadmin/metallb/pool.yaml
   become: true
   become_user: kubeadmin
 
-- name: create file /home/kubeadmin/metallb/bgp_advertise.yaml
-  copy:
-    content: |
-      apiVersion: metallb.io/v1beta1
-      kind: BGPAdvertisement
-      metadata:
-        name: bgp
-        namespace: metallb-system
-    dest: /home/kubeadmin/metallb/bgp_advertise.yaml
-  become: true
-  become_user: kubeadmin
-  when: k8s.core.metallb.BGPAdvertisement
-
-- name: apply metallb BGP advertisement
-  shell: kubectl apply -f /home/kubeadmin/metallb/bgp_advertise.yaml
-  become: true
-  become_user: kubeadmin
-  when: k8s.core.metallb.BGPAdvertisement
-
-
-- name: create file /home/kubeadmin/metallb/l2_advertise.yaml
+- name: create file /home/kubeadmin/metallb/advert.yaml
   copy:
     content: |
       apiVersion: metallb.io/v1beta1
       kind: L2Advertisement
       metadata:
-        name: l2
+        name: first-advert
         namespace: metallb-system
-    dest: /home/kubeadmin/metallb/l2_advertise.yaml
+    dest: /home/kubeadmin/metallb/advert.yaml
   become: true
   become_user: kubeadmin
-  when: k8s.core.metallb.L2Advertisement
 
-- name: apply metallb L2 advertisement
-  shell: kubectl apply -f /home/kubeadmin/metallb/l2_advertise.yaml
+- name: apply metallb load balancer L2 advert configuration
+  shell: kubectl apply -f /home/kubeadmin/metallb/advert.yaml
   become: true
   become_user: kubeadmin
-  when: k8s.core.metallb.L2Advertisement

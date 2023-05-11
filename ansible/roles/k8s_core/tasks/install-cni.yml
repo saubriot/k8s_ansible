@@ -19,19 +19,22 @@
     state: directory
   become: true
   become_user: kubeadmin
-
-- name: install CNI "calico"
-  shell: |
-    curl https://docs.projectcalico.org/manifests/calico-typha.yaml -o /home/kubeadmin/calico/calico.yaml
-    kubectl apply -f /home/kubeadmin/calico/calico.yaml
-    curl -o /home/kubeadmin/calico/calicoctl -O -L "https://github.com/projectcalico/calicoctl/releases/download/{{ k8s.core.cni.calico.version }}/calicoctl"
-  become: true
-  become_user: kubeadmin
   when: k8s.core.cni.vendor == "calico"
 
 - name: install CNI "calico"
   shell: |
-    cp -nf /home/kubeadmin/calico/calicoctl /usr/local/bin/
-    chmod +x /usr/local/bin/calicoctl
+    kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/{{ k8s.core.cni.calico.version }}/manifests/custom-resources.yaml
+    kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/{{ k8s.core.cni.calico.version }}/manifests/custom-resources.yaml
+    curl -o /home/kubeadmin/calico/calico.yaml -O -L "https://raw.githubusercontent.com/projectcalico/calico/{{ k8s.core.cni.calico.version }}/manifests/calico.yaml"
+    kubectl apply -f /home/kubeadmin/calico/calico.yaml
   become: true
+  become_user: kubeadmin
+  when: k8s.core.cni.vendor == "calico"
+
+- name: install CNI "calicoctl" on kubernetes API datastore
+  shell: |
+    kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/{{ k8s.core.cni.calico.version }}/manifests/calicoctl.yaml
+#    kubectl exec -ti -n kube-system calicoctl -- /calicoctl get profiles -o wide
+  become: true
+  become_user: kubeadmin
   when: k8s.core.cni.vendor == "calico"

@@ -82,7 +82,7 @@
 
 - name: store kubeadm join command for master
   copy:
-    src: "{{ all.fetch_directory }}/k8s_join_master_file"
+    src: "{{ all.fetch_directory }}/k8s_join_master_file_{{ all.environment }}"
     dest: "/var/log/k8s_join_master_file_{{ all.environment }}"
   when: init_master == "join"  
   

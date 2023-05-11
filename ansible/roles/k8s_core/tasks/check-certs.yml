@@ -1,28 +1,11 @@
 ---
 # file: roles/k8s_core/tasks/check-certs.yml
 
-- name: get certificate
-  shell: |
-    kubectl get secret ca-key-pair -n cert-manager -o yaml|grep tls.crt|grep -v {}|awk '{print $2}'| base64 --decode
-  register: cert_result
-  become: true
-  become_user: kubeadmin
-
-- name: put certificate to file /home/kubeadmin/cert-manager/dashboard.crt
-  shell: |
-    echo "{{ cert_result.stdout }}" > /home/kubeadmin/cert-manager/dashboard.crt
-  become: true
-  become_user: kubeadmin
-
-- name: put certificate locally
+- name: Fetch certificate
   fetch:
     flat: yes
-    src: /home/kubeadmin/cert-manager/dashboard.crt
-    dest: "{{ all.fetch_directory }}/k8s-dashboard.crt"
+    src: /home/kubeadmin/cert-manager/ca.crt
+    dest: "{{ all.fetch_directory }}/k8s-ca.crt"
   become: true
   become_user: kubeadmin
-
-- name: copy/paste certificate
-  debug:
-    msg: "{{ cert_result.stdout }}"
 

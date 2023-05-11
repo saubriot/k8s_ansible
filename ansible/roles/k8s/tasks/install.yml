@@ -49,6 +49,9 @@
   apt:
     update_cache: yes
 
+- name: apt-mark unhold kubelet kubeadm kubectl
+  shell: apt-mark unhold kubelet kubeadm kubectl
+
 - name: install packages "kubelet, kubeadm, kubectl"
   apt:
     pkg:
