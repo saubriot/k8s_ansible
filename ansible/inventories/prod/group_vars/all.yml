@@ -1,0 +1,106 @@
+
+all:
+  fetch_directory: /tmp
+  environment: prod
+
+certificates:
+  ca:
+    namespace: pki-certs
+  use_self_signed_certificates: false
+  certbot:
+    use_certbot: true
+    email: saubriot@gmail.com
+    k8s:
+      domain: k8s.techfab.io
+
+k8s:
+  apt:
+    version: 1.27.1-00
+  cri:
+    crio:
+      os: Debian_11
+      version: 1.25
+  master:
+    pod_network_cidr: 10.244.0.0/16   
+    kubeadm_extra: ""
+    multi_master: true
+    load_balancer_ip: 192.168.110.141
+    apiserver_port: 6443
+    untaint: false
+    untaint_master_nodes:
+      - frangipanier.flowers
+
+  openebs:
+    storageclass:
+      hostpath: /data_storage/openebs
+
+  coredns:
+    namespace: coredns-flowers
+    port: 53
+    zone_name: flowers
+    external_ip: 192.168.110.180
+    forward: 8.8.8.8 8.8.4.4
+
+    zone: |
+      flowers.              IN  SOA ns1.flowers. root.flowers. 2015082541 7200 3600 1209600 3600
+      flowers.              IN  NS  ns1.flowers.
+      ns1                   IN  A   192.168.110.180
+
+      dashboard.k8s         IN  A   192.168.110.180
+      rook-ceph.k8s         IN  A   192.168.110.180
+      grafana.k8s           IN  A   192.168.110.180
+      kibana.k8s            IN  A   192.168.110.180
+      elastic.k8s           IN  A   192.168.110.180
+      minio.k8s             IN  A   192.168.110.180
+      console.minio.k8s     IN  A   192.168.110.180
+      keycloak.k8s          IN  A   192.168.110.180      
+      nexus.k8s             IN  A   192.168.110.180      
+      gitlab.k8s            IN  A   192.168.110.180      
+      ldap.k8s              IN  A   192.168.110.180      
+      admin.ldap.k8s        IN  A   192.168.110.180      
+
+      gitea.k8s             IN  A   192.168.110.180
+      drone.k8s             IN  A   192.168.110.180
+      harbor.k8s            IN  A   192.168.110.180
+
+  core:
+    cni: 
+      vendor: calico # calico, weave, flannel
+      calico:
+        version: v3.25.1
+
+    metallb:
+      ip_range: "192.168.110.180-192.168.110.189"
+      version: v0.13.9
+    
+    nginx:
+      version: v1.7.1
+
+    cert_manager:
+      version: v1.11.0
+      namespace: cert-manager
+      ca:
+        cn: "k8s flowers CA"
+        csr:
+          C: France
+          L: Paris
+          ST: Ile de France
+        expiry: 43830h
+        renewBefore: 360h
+
+    dashboard:
+      csr_CN: dashboard.k8s.flowers
+      host: dashboard.k8s.flowers
+      version: v2.7.0
+
+    weave_scope:
+      csr_CN: weave-scope.k8s.flowers
+      host: weave-scope.k8s.flowers
+      use_cert_manager: true
+      
+    coredns: 
+      domain: k8s.flowers
+      port: 53
+      forward: 192.168.110.180
+
+
