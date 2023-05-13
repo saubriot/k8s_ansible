@@ -52,6 +52,12 @@
     path: /var/lib/containerd
     state: absent
   when: reset
+    
+- name: remove /var/lib/containers if exists
+  file:
+    path: /var/lib/containers
+    state: absent
+  when: reset
 
 - name: remove /var/lib/docker if exists
   file:
