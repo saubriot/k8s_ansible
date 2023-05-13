@@ -5,7 +5,7 @@
   shell: |
     kubectl get configmap kube-proxy -n kube-system -o yaml | sed -e "s/strictARP: false/strictARP: true/" | kubectl apply -f - -n kube-system
     kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/{{ k8s.core.metallb.version }}/config/manifests/metallb-native.yaml
-    kubectl wait --namespace metallb-system --for=condition=ready pod --selector=component=controller --timeout=90s
+    kubectl wait --namespace metallb-system --for=condition=ready pod --selector=component=controller --timeout=360s
   become: true
   become_user: kubeadmin
 

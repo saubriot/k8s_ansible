@@ -1,0 +1,15 @@
+---
+# file: roles/k8s_master_nodes/tasks/join.yml
+
+- name: store kubeadm join command for master
+  copy:
+    src: "{{ all.fetch_directory }}/k8s_join_master_file_{{ all.environment }}"
+    dest: "/var/log/k8s_join_master_file_{{ all.environment }}"
+  
+- name: get kubadm join command for master
+  shell: "cat /var/log/k8s_join_master_file_{{ all.environment }}"
+  register: kubeadm_join_master_result
+  
+- name: kubeadm join master
+  shell: "{{ kubeadm_join_master_result.stdout }} --cri-socket {{ k8s.cri.criSocket }} --apiserver-advertise-address {{ ansible_host }} {{ k8s.master.kubeadm_extra }} > /var/log/kubeadm_join.log"
+  

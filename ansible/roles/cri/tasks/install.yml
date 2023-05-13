@@ -1,0 +1,8 @@
+---
+# file: roles/cri/tasks/install.yml
+
+- include_tasks: "cri-o.yml"
+  when: k8s.cri.type.crio
+
+- include_tasks: "containerd.yml"
+  when: k8s.cri.type.containerd

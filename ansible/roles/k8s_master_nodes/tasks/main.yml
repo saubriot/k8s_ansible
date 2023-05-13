@@ -1,6 +1,21 @@
 ---
 # file: roles/k8s_master_nodes/tasks/main.yml
 
-- include_tasks: "install.yml"
+- include_tasks: "init.yml"
   when: operation == "install"
-    
+
+- include_tasks: "single.yml"
+  when: operation == "install" and init_master == "single" 
+
+- include_tasks: "multi.yml"
+  when: operation == "install" and init_master == "multi" 
+
+- include_tasks: "join.yml"
+  when: operation == "install" and init_master == "join" 
+
+- include_tasks: "kubeadmin.yml"
+  when: operation == "install"
+
+- include_tasks: "openebs.yml"
+  when: operation == "install"
+

@@ -1,5 +1,5 @@
 ---
-  # file: roles/k8s_admin/tasks/main.yml
+  # file: roles/cri/tasks/main.yml
   
   - include_tasks: "install.yml"
     when: operation == "install"

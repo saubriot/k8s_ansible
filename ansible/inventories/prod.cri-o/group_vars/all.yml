@@ -1,18 +1,24 @@
 
 all:
   fetch_directory: /tmp
-  environment: prod
+  environment: prod.cri-o
 
 k8s:
   apt:
     version: 1.27.1-00
   cri:
+    type:
+      crio: true
+      containerd: false
+    criSocket: unix:///var/run/crio/crio.sock
+#    criSocket: unix:///var/run/containerd/containerd.sock
     crio:
       os: Debian_11
       version: 1.25
   master:
     pod_network_cidr: 10.244.0.0/16   
     kubeadm_extra: ""
+    skip_proxy: false
     multi_master: true
     load_balancer_ip: 192.168.110.141
     apiserver_port: 6443

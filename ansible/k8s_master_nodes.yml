@@ -4,6 +4,6 @@
   become: true
   roles:
     - common
-    - cri-o
+    - cri
     - k8s
     - k8s_master_nodes

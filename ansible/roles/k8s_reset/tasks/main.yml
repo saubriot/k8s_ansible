@@ -5,6 +5,7 @@
   shell: kubeadm reset -f
   tags: reset
   when: reset
+  ignore_errors: true  
 
 - name: remove /etc/cni/net.d if exists
   file:
@@ -27,6 +28,40 @@
 - name: remove /var/lib/weave if exists
   file:
     path: /var/lib/weave
+    state: absent
+  when: reset
+
+- name: remove cri packages "docker-engine docker.io containerd runc containerd.io cri-o cri-o-runc"
+  apt:
+    pkg:
+    - docker-engine 
+    - docker.io 
+    - containerd 
+    - runc
+    - containerd.io
+    - cri-o
+    - cri-o-runc
+    state: absent
+
+- name: apt autoremove
+  apt:
+    autoremove: yes
+    
+- name: remove /var/lib/containerd if exists
+  file:
+    path: /var/lib/containerd
+    state: absent
+  when: reset
+
+- name: remove /var/lib/docker if exists
+  file:
+    path: /var/lib/docker
+    state: absent
+  when: reset
+
+- name: remove /etc/kubernetes if exists
+  file:
+    path: /etc/kubernetes
     state: absent
   when: reset
 

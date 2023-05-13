@@ -1,0 +1,24 @@
+---
+# file: roles/k8s_master_nodes/tasks/kubeadmin.yml
+
+- name: create /home/kubeadmin/.kube
+  file:
+    path: /home/kubeadmin/.kube
+    state: directory
+    mode: '0755'
+
+- name: remove /home/kubeadmin/.kube/config if exists
+  file:
+    path: /home/kubeadmin/.kube/config
+    state: absent
+
+- name: cp -i /etc/kubernetes/admin.conf /home/kubeadmin/.kube/config
+  shell: |
+    cp -i /etc/kubernetes/admin.conf /home/kubeadmin/.kube/config
+    chown -R kubeadmin:kubeadmin /home/kubeadmin
+
+- name: create openebs storage class hostpath
+  file:
+    path: "{{ k8s.openebs.storageclass.hostpath }}"
+    state: directory
+    mode: '0755'

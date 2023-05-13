@@ -1,8 +1,0 @@
----
-    # file: roles/k8s_admin/tasks/delete-others.yml
-    
-    - name: remove the package "net-tools"
-      apt:
-        pkg: 
-        - net-tools
-        state: absent

@@ -1,0 +1,13 @@
+---
+# file: roles/k8s_master_nodes/tasks/init.yml
+
+- name: install package certbot
+  apt:
+    name: certbot
+    state: present
+
+- name: add the user kubeadmin
+  user:
+    name: kubeadmin
+    shell: /bin/bash
+    append: yes
