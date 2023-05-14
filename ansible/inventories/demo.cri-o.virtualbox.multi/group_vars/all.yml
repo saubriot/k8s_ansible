@@ -18,7 +18,6 @@ k8s:
             caFile: /etc/etcd/ca.pem
             certFile: /etc/etcd/etcd.pem
             keyFile: /etc/etcd/etcd-key.pem        
-
   cri:
     vendor: cri-o
     criSocket: unix:///var/run/crio/crio.sock

@@ -6,7 +6,16 @@ all:
 k8s:
   apt:
     version: 1.27.1-00
-
+  cluster:
+    configuration: 
+      etcd: |
+        etcd:
+          external:
+            endpoints:
+              - https://192.168.10.52:2379
+            caFile: /etc/etcd/ca.pem
+            certFile: /etc/etcd/etcd.pem
+            keyFile: /etc/etcd/etcd-key.pem
   cri:
     vendor: cri-o
     criSocket: unix:///var/run/crio/crio.sock
