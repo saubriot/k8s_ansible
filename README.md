@@ -28,14 +28,14 @@ The ansible directory structure has been defined as followed :
   - k8s_core.yml : install the core kubernetes components : cni, metallb, nginx, dashboard
   - platform.yml : the all in one playbook
   - **inventories** : contains information about the environments to deploy
-    - **demo.containerd.libvirt.single** : demo environment single master node, using containerd cri and libvirt to host VM (specific IP addresses)
-    - **demo.containerd.libvirt.multi** : demo environment multi master nodes, using containerd cri and libvirt to host VM (specific IP addresses)
-    - **demo.cri-o.libvirt.single** : demo environment single master node, using cri-o cri and libvirt to host VM (specific IP addresses)
-    - **demo.cri-o.libvirt.multi** : demo environment multi master nodes, using cri-o cri and libvirt to host VM (specific IP addresses)
-    - **demo.containerd.virtualbox.single** : demo environment single master node, using containerd cri and virtualbox to host VM (specific IP addresses)
-    - **demo.containerd.virtualbox.multi** : demo environment multi master nodes, using containerd cri and virtualbox to host VM (specific IP addresses)
-    - **demo.cri-o.virtualbox.single** : demo environment single master node, using cri-o cri and virtualbox to host VM (specific IP addresses)
-    - **demo.cri-o.virtualbox.multi** : demo environment multi master nodes, using cri-o cri and virtualbox to host VM (specific IP addresses)
+    - **demo.containerd.libvirt.single** : demo environment single master node, using containerd and libvirt to host VM (specific IP addresses)
+    - **demo.containerd.libvirt.multi** : demo environment multi master nodes, using containerd and libvirt to host VM (specific IP addresses)
+    - **demo.cri-o.libvirt.single** : demo environment single master node, using cri-o and libvirt to host VM (specific IP addresses)
+    - **demo.cri-o.libvirt.multi** : demo environment multi master nodes, using cri-o and libvirt to host VM (specific IP addresses)
+    - **demo.containerd.virtualbox.single** : demo environment single master node, using containerd and virtualbox to host VM (specific IP addresses)
+    - **demo.containerd.virtualbox.multi** : demo environment multi master nodes, using containerd and virtualbox to host VM (specific IP addresses)
+    - **demo.cri-o.virtualbox.single** : demo environment single master node, using cri-o and virtualbox to host VM (specific IP addresses)
+    - **demo.cri-o.virtualbox.multi** : demo environment multi master nodes, using cri-o and virtualbox to host VM (specific IP addresses)
       - hosts : contains the hosts list per role. Note : roles are matching the main playbooks
       - **group_vars** :
         - all : global settings : all settings and kubernetes settings
