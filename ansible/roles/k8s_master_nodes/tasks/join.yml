@@ -12,9 +12,21 @@
   
 - name: kubeadm join master
   shell: "{{ kubeadm_join_master_result.stdout }} --cri-socket {{ k8s.cri.criSocket }} --apiserver-advertise-address {{ ansible_host }} {{ k8s.master.kubeadm_extra }} > /var/log/kubeadm_join.log"
-    mkdir -p /home/kubeadmin/.kube
-    cp -f /etc/kubernetes/admin.conf /home/kubeadmin/.kube/config
-    chmod -R 0755 /home/kubeadmin/.kube
+
+- name: create /home/kubeadmin/.kube
+  file:
+    path: /home/kubeadmin/.kube
+    state: directory
+    mode: '0755'
+
+- name: remove /home/kubeadmin/.kube/config if exists
+  file:
+    path: /home/kubeadmin/.kube/config
+    state: absent
+
+- name: cp -i /etc/kubernetes/admin.conf /home/kubeadmin/.kube/config
+  shell: |
+    cp -i /etc/kubernetes/admin.conf /home/kubeadmin/.kube/config
     chown -R kubeadmin:kubeadmin /home/kubeadmin
 
 
