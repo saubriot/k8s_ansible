@@ -1,0 +1,31 @@
+[k8s_admin]
+strasbourg.europe ansible_host=192.168.10.141
+
+[k8s_etcd]
+paris.europe ansible_host=192.168.10.52 create_certs=True synch_certs=False
+berlin.europe ansible_host=192.168.10.55 create_certs=False synch_certs=True
+roma.europe ansible_host=192.168.10.67 create_certs=False synch_certs=True
+
+[k8s_master_nodes]
+paris.europe ansible_host=192.168.10.52 init_master=multi
+berlin.europe ansible_host=192.168.10.55 init_master=join
+roma.europe ansible_host=192.168.10.67 init_master=join
+
+[k8s_nodes]
+lisboa.europe ansible_host=192.168.10.91
+madrid.europe ansible_host=192.168.10.92
+amsterdam.europe ansible_host=192.168.10.93
+
+[k8s_kubeadmin]
+paris.europe ansible_host=192.168.10.52
+
+[k8s_core]
+paris.europe ansible_host=192.168.10.52
+
+[k8s_reset]
+paris.europe ansible_host=192.168.10.52 reset=True
+berlin.europe ansible_host=192.168.10.55 reset=True
+roma.europe ansible_host=192.168.10.67 reset=True
+lisboa.europe ansible_host=192.168.10.91 reset=True
+madrid.europe ansible_host=192.168.10.92 reset=True
+amsterdam.europe ansible_host=192.168.10.93 reset=True

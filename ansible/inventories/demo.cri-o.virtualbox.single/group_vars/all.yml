@@ -1,0 +1,81 @@
+
+all:
+  fetch_directory: /tmp
+  environment: demo.vb
+
+k8s:
+  apt:
+    version: 1.27.1-00
+
+  cri:
+    vendor: cri-o
+    criSocket: unix:///var/run/crio/crio.sock
+    crio:
+      os: Debian_11
+      version: 1.25
+  master:
+    pod_network_cidr: 10.244.0.0/16   
+    kubeadm_extra: "--v=99"
+    load_balancer_ip: 192.168.10.141
+    apiserver_port: 6443
+    untaint: false
+    untaint_master_nodes:
+      - lisboa.europe
+
+  openebs:
+    storageclass:
+      hostpath: /data_storage/openebs
+
+  coredns:
+    namespace: coredns-europe
+    port: 53
+    zone_name: europe
+    external_ip: 192.168.10.180
+    forward: 8.8.8.8 8.8.4.4
+
+    zone: |
+      europe.               IN  SOA ns1.europe. root.europe. 2015082541 7200 3600 1209600 3600
+      europe.               IN  NS  ns1.europe.
+      ns1                   IN  A   192.168.10.180
+
+      dashboard.vb.k8s      IN  A   192.168.10.180
+
+  core:
+    cni: 
+      vendor: calico # calico, weave, flannel
+      calico:
+        version: v3.25.1
+      weave:
+        version: v2.8.1
+      flannel:
+        version: latest
+
+    metallb:
+      ip_range: "192.168.10.180-192.168.10.189"
+      version: v0.13.9
+    
+    nginx:
+      version: v1.7.1
+
+    cert_manager:
+      version: v1.11.0
+      namespace: cert-manager
+      ca:
+        cn: "k8s europe CA"
+        csr:
+          C: France
+          L: Paris
+          ST: Ile de France
+        expiry: 43830h
+        renewBefore: 360h
+
+    dashboard:
+      csr_CN: dashboard.vb.k8s.europe
+      host: dashboard.vb.k8s.europe
+      version: v2.7.0
+      
+    coredns: 
+      domain: k8s.europe
+      port: 53
+      forward: 192.168.10.180
+
