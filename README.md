@@ -8,7 +8,15 @@ We will use Ansible to install a Kubernetes Cluster including its Manageùent Da
 
 Demo architecture used for the cluster (see https://github.com/saubriot/k8s_vagrant/)
 
-![Architecture](https://github.com/saubriot/k8s_ansible/blob/master/images/k8s_architecture.png)
+| Host              | IP Address     | Admin  | Etcd        | Single Master | Multi Master | Worker |
+|-------------------|----------------|--------|-------------|---------------|--------------|--------|
+| strasbourg.europe | 192.168.20.141 | always |             |               |              |        |
+| paris.europe      | 192.168.20.52  |        | always      | always        | initial      |        |
+| berlin.europe     | 192.168.20.55  |        | when master |               | join         |        |
+| roma.europe       | 192.168.20.67  |        | when master |               | join         |        |
+| lisboa.europe     | 192.168.20.91  |        |             |               |              | always |
+| madrid.europe     | 192.168.20.92  |        |             |               |              | always |
+| amsterdam.europe  | 192.168.20.93  |        |             |               |              | always |
 
 # 3. Prerequisites
 - Ansible installed on the local host that will run the playbook
