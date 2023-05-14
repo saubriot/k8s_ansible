@@ -1,7 +1,7 @@
 
 all:
   fetch_directory: /tmp
-  environment: demo
+  environment: demo.lv
 
 k8s:
   apt:
@@ -37,7 +37,7 @@ k8s:
       europe.               IN  NS  ns1.europe.
       ns1                   IN  A   192.168.20.180
 
-      dashboard.k8s         IN  A   192.168.20.180
+      dashboard.lv.k8s      IN  A   192.168.20.180
 
   core:
     cni: 
@@ -69,8 +69,8 @@ k8s:
         renewBefore: 360h
 
     dashboard:
-      csr_CN: dashboard.k8s.europe
-      host: dashboard.k8s.europe
+      csr_CN: dashboard.lv.k8s.europe
+      host: dashboard.lv.k8s.europe
       version: v2.7.0
       
     coredns: 

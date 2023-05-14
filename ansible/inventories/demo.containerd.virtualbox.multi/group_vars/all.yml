@@ -1,11 +1,24 @@
 
 all:
   fetch_directory: /tmp
-  environment: demo
+  environment: demo.vb
 
 k8s:
   apt:
     version: 1.27.1-00
+  cluster:
+    configuration: 
+      etcd: |
+        etcd:
+          external:
+            endpoints:
+              - https://192.168.10.52:2379
+              - https://192.168.10.55:2379
+              - https://192.168.10.67:2379
+            caFile: /etc/etcd/ca.pem
+            certFile: /etc/etcd/etcd.pem
+            keyFile: /etc/etcd/etcd-key.pem        
+
   cri:
     vendor: containerd
     criSocket: unix:///var/run/containerd/containerd.sock
@@ -37,7 +50,7 @@ k8s:
       europe.               IN  NS  ns1.europe.
       ns1                   IN  A   192.168.10.180
 
-      dashboard.k8s         IN  A   192.168.10.180
+      dashboard.vb.k8s      IN  A   192.168.10.180
 
   core:
     cni: 
@@ -69,8 +82,8 @@ k8s:
         renewBefore: 360h
 
     dashboard:
-      csr_CN: dashboard.k8s.europe
-      host: dashboard.k8s.europe
+      csr_CN: dashboard.vb.k8s.europe
+      host: dashboard.vb.k8s.europe
       version: v2.7.0
       
     coredns: 

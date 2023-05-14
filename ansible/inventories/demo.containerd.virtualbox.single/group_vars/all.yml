@@ -1,23 +1,11 @@
 
 all:
   fetch_directory: /tmp
-  environment: demo.lv
+  environment: demo.vb
 
 k8s:
   apt:
     version: 1.27.1-00
-  cluster:
-    configuration: 
-      etcd: |
-        etcd:
-          external:
-            endpoints:
-              - https://192.168.20.52:2379
-              - https://192.168.20.55:2379
-              - https://192.168.20.67:2379
-            caFile: /etc/etcd/ca.pem
-            certFile: /etc/etcd/etcd.pem
-            keyFile: /etc/etcd/etcd-key.pem        
 
   cri:
     vendor: containerd
@@ -28,7 +16,7 @@ k8s:
   master:
     pod_network_cidr: 10.244.0.0/16   
     kubeadm_extra: "--v=99"
-    load_balancer_ip: 192.168.20.141
+    load_balancer_ip: 192.168.10.141
     apiserver_port: 6443
     untaint: false
     untaint_master_nodes:
@@ -42,15 +30,15 @@ k8s:
     namespace: coredns-europe
     port: 53
     zone_name: europe
-    external_ip: 192.168.20.180
+    external_ip: 192.168.10.180
     forward: 8.8.8.8 8.8.4.4
 
     zone: |
       europe.               IN  SOA ns1.europe. root.europe. 2015082541 7200 3600 1209600 3600
       europe.               IN  NS  ns1.europe.
-      ns1                   IN  A   192.168.20.180
+      ns1                   IN  A   192.168.10.180
 
-      dashboard.lv.k8s      IN  A   192.168.20.180
+      dashboard.vb.k8s      IN  A   192.168.10.180
 
   core:
     cni: 
@@ -63,7 +51,7 @@ k8s:
         version: latest
 
     metallb:
-      ip_range: "192.168.20.180-192.168.20.189"
+      ip_range: "192.168.10.180-192.168.10.189"
       version: v0.13.9
     
     nginx:
@@ -82,12 +70,12 @@ k8s:
         renewBefore: 360h
 
     dashboard:
-      csr_CN: dashboard.lv.k8s.europe
-      host: dashboard.lv.k8s.europe
+      csr_CN: dashboard.vb.k8s.europe
+      host: dashboard.vb.k8s.europe
       version: v2.7.0
       
     coredns: 
       domain: k8s.europe
       port: 53
-      forward: 192.168.20.180
+      forward: 192.168.10.180
 
