@@ -64,10 +64,10 @@ The ansible directory structure has been defined as followed :
 
 ## 4.2. Install k8s administration host
 ### 4.2.a. Objective
-The administration host includes 2 main components :
-- An haproxy server to load balance Kubernetes control plane API requests to kubernetes master nodes
-- A DNS Server for .europe domain name resolution including hostnames (ex : paris.europe) and kubernetes domain names (ex : dashboard.k8s.europe).
-- An OpenVPN Server to connect the Cluster (usefull if you want restrict external access on a specific interface)
+The administration host includes these components :
+- haproxy server : to load balance Kubernetes control plane API requests to kubernetes master nodes
+- DNS Server : for .europe domain name resolution including hostnames (ex : paris.europe) and kubernetes domain names (ex : dashboard.k8s.europe).
+- OpenVPN Server : to connect the Cluster (usefull if you want restrict external access on a specific interface)
 
 ### 4.2.b. Install using vagrant account
 Move to ansible directory (assuming git repo is installed in ~/k8s_ansible) and run the playbook k8s_admin.yml.
