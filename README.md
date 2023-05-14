@@ -8,6 +8,7 @@ We will use Ansible to install a Kubernetes Cluster including its Manageùent Da
 
 Demo architecture used for the cluster (see https://github.com/saubriot/k8s_vagrant/)
 
+|-------------------|----------------|--------|-------------|---------------|--------------|--------|
 | Host              | IP Address     | Admin  | Etcd        | Single Master | Multi Master | Worker |
 |-------------------|----------------|--------|-------------|---------------|--------------|--------|
 | strasbourg.europe | 192.168.20.141 | always |             |               |              |        |
@@ -17,6 +18,7 @@ Demo architecture used for the cluster (see https://github.com/saubriot/k8s_vagr
 | lisboa.europe     | 192.168.20.91  |        |             |               |              | always |
 | madrid.europe     | 192.168.20.92  |        |             |               |              | always |
 | amsterdam.europe  | 192.168.20.93  |        |             |               |              | always |
+|-------------------|----------------|--------|-------------|---------------|--------------|--------|
 
 # 3. Prerequisites
 - Ansible installed on the local host that will run the playbook
@@ -60,6 +62,17 @@ The ansible directory structure has been defined as followed :
     - **k8s_master_nodes** : kubernetes master node installation tasks to execute
     - **k8s_nodes** : kubernetes nodes installation tasks to execute (not including master node)
     - **k8s_reset** : specific tasks to reset kubernetes installation : revert to a clean pre installation
+
+### 4.1.a Tests passed
+
+|------------|------------|--------------|---------|--------------|------------|--------------|
+|            |        bare metal         |      libvirt           |       virtualbox          |
+| container  |------------|--------------|---------|--------------|------------|--------------|
+|            | single     | multi master | single  | multi master | single     | multi master |
+|------------|------------|--------------|---------|--------------|------------|--------------|
+| containerd | passed     | passed       | passed  | passed       | passed     | passed       |
+| cri-o      | passed     | passed       | passed  | passed       | passed     | passed       |
+|------------|------------|--------------|---------|--------------|------------|--------------|
 
 
 ## 4.2. Install k8s administration host
