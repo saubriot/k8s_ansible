@@ -2,7 +2,7 @@
 # file: roles/cri/tasks/install.yml
 
 - include_tasks: "cri-o.yml"
-  when: k8s.cri.type.crio
+  when: k8s.cri.vendor == "cri-o"
 
 - include_tasks: "containerd.yml"
-  when: k8s.cri.type.containerd
+  when: k8s.cri.vendor == "containerd"

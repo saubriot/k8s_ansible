@@ -23,10 +23,10 @@ iris.flowers ansible_host=192.168.110.52
 iris.flowers ansible_host=192.168.110.52 reset=true
 magnolia.flowers ansible_host=192.168.110.55 reset=true
 orchidee.flowers ansible_host=192.168.110.67 reset=true
-geranium.flowers ansible_host=192.168.110.92 reset=false
-jasmin.flowers ansible_host=192.168.110.95 reset=false
-frangipanier.flowers ansible_host=192.168.110.91 reset=false
-rose.flowers ansible_host=192.168.110.96 reset=false
-ibiscus.flowers ansible_host=192.168.110.94 reset=false
+geranium.flowers ansible_host=192.168.110.92 reset=true
+jasmin.flowers ansible_host=192.168.110.95 reset=true
+frangipanier.flowers ansible_host=192.168.110.91 reset=true
+rose.flowers ansible_host=192.168.110.96 reset=true
+ibiscus.flowers ansible_host=192.168.110.94 reset=true
 
 

@@ -4,6 +4,10 @@
 - name: kubeadm init single master
   shell: |
     kubeadm init --cri-socket {{ k8s.cri.criSocket }} --apiserver-advertise-address {{ ansible_host }} --apiserver-bind-port {{ k8s.master.apiserver_port }} --upload-certs --pod-network-cidr {{ k8s.master.pod_network_cidr }} {{ k8s.master.kubeadm_extra }} --skip-phases=addon/kube-proxy > /var/log/kubeadm_init.log
+    mkdir -p /home/kubeadmin/.kube
+    cp -f /etc/kubernetes/admin.conf /home/kubeadmin/.kube/config
+    chmod -R 0755 /home/kubeadmin/.kube
+    chown -R kubeadmin:kubeadmin /home/kubeadmin
 
 - name: check if Kubernetes API server is available and returning status 200
   shell: |
@@ -27,3 +31,4 @@
     src: "/var/log/k8s_join_node_file_{{ all.environment }}"
     dest: "{{ all.fetch_directory }}/"
     flat: yes
+

@@ -13,9 +13,3 @@
 - include_tasks: "join.yml"
   when: operation == "install" and init_master == "join" 
 
-- include_tasks: "kubeadmin.yml"
-  when: operation == "install"
-
-- include_tasks: "openebs.yml"
-  when: operation == "install"
-

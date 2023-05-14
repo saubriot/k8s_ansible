@@ -1,0 +1,137 @@
+---
+# file: roles/k8s_etcd/tasks/install-cfssl.yml
+
+- name: add the user etcdadmin
+  user:
+    name: etcdadmin
+    shell: /bin/bash
+    append: yes
+
+- name: remove /home/etcdadmin/cfssl if exists
+  file:
+    path: /home/etcdadmin/cfssl
+    state: absent
+
+- name: create directory /home/etcdadmin/cfssl
+  file:
+    path: /home/etcdadmin/cfssl
+    state: directory
+
+- name: create file /home/etcdadmin/cfssl/ca-config.json
+  copy:
+    content: |      
+      {
+        "signing": {
+          "default": {
+            "expiry": "8760h"
+          },
+          "profiles": {
+            "etcd": {
+              "usages": ["signing", "key encipherment", "server auth", "client auth"],
+              "expiry": "{{ etcd.ca.expiry }}"
+            }
+          }
+        }
+      }
+    dest: /home/etcdadmin/cfssl/ca-config.json
+  when: create_certs
+
+- name: create file /home/etcdadmin/cfssl/ca-csr.json
+  copy:
+    content: |
+      {
+        "CN": "{{ etcd.ca.cn }}",
+        "key": {
+          "algo": "rsa",
+          "size": 4096
+        },
+        "names": [
+        {
+          "C": "{{ etcd.ca.csr.C }}",
+          "L": "{{ etcd.ca.csr.L }}",
+          "O": "{{ etcd.ca.csr.O }}",
+          "ST": "{{ etcd.ca.csr.ST }}"
+        }
+       ]
+      }
+    dest: /home/etcdadmin/cfssl/ca-csr.json
+  when: create_certs
+
+- name: cfssl gencert -initca 
+  shell: |
+    cd /home/etcdadmin/cfssl 
+    cfssl gencert -initca ca-csr.json | cfssljson -bare {{ all.environment }}.ca
+  when: create_certs
+
+- name: create file /home/etcdadmin/cfssl/etcd-csr.json
+  copy:
+    content: |
+      {
+        "CN": "{{ etcd.ca.cn }}",
+        "key": {
+          "algo": "rsa",
+          "size": 4096
+        },
+        "names": [
+        {
+          "C": "{{ etcd.ca.csr.C }}",
+          "L": "{{ etcd.ca.csr.L }}",
+          "O": "{{ etcd.ca.csr.O }}",
+          "ST": "{{ etcd.ca.csr.ST }}"
+        }
+       ]
+      }
+    dest: /home/etcdadmin/cfssl/etcd-csr.json
+  when: create_certs
+
+- name: cfssl gencert -ca
+  shell: |
+    cd /home/etcdadmin/cfssl 
+    cfssl gencert -ca={{ all.environment }}.ca.pem -ca-key={{ all.environment }}.ca-key.pem -config=ca-config.json -hostname={{ etcd.hostname }} -profile=etcd etcd-csr.json | cfssljson -bare {{ all.environment }}.etcd
+    cp {{ all.environment }}.ca.pem ca.pem
+    cp {{ all.environment }}.etcd.pem etcd.pem
+    cp {{ all.environment }}.etcd-key.pem etcd-key.pem
+  when: create_certs
+
+- name: fetch ca.pem for synch
+  fetch:
+    src: "/home/etcdadmin/cfssl/{{ all.environment }}.ca.pem"
+    dest: "{{ all.fetch_directory }}/"
+    flat: yes
+  when: create_certs
+
+- name: fetch etcd.pem for synch
+  fetch:
+    src: "/home/etcdadmin/cfssl/{{ all.environment }}.etcd.pem"
+    dest: "{{ all.fetch_directory }}/"
+    flat: yes
+  when: create_certs
+
+- name: fetch etcd-key.pem for synch
+  fetch:
+    src: "/home/etcdadmin/cfssl/{{ all.environment }}.etcd-key.pem"
+    dest: "{{ all.fetch_directory }}/"
+    flat: yes
+  when: create_certs
+
+- name: synch ca.pem
+  copy:
+    src: "{{ all.fetch_directory }}/{{ all.environment }}.ca.pem"
+    dest: "/home/etcdadmin/cfssl/ca.pem"
+  when: synch_certs
+
+- name: synch etcd.pem
+  copy:
+    src: "{{ all.fetch_directory }}/{{ all.environment }}.etcd.pem"
+    dest: "/home/etcdadmin/cfssl/etcd.pem"
+  when: synch_certs
+
+- name: synch etcd-key.pem
+  copy:
+    src: "{{ all.fetch_directory }}/{{ all.environment }}.etcd-key.pem"
+    dest: "/home/etcdadmin/cfssl/etcd-key.pem"
+  when: synch_certs
+
+- name: chown -R etcdadmin:etcdadmin /home/etcdadmin/cfssl
+  shell: |
+    chown -R etcdadmin:etcdadmin /home/etcdadmin/cfssl

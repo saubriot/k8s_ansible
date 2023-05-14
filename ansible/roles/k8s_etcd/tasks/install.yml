@@ -1,0 +1,8 @@
+---
+# file: roles/k8s_admin/tasks/install.yml
+
+- include_tasks: "install-cfssl.yml"
+  when: task == "cfssl" or task == "all"
+
+- include_tasks: "install-etcd.yml"
+  when: task == "etcd" or task == "all"

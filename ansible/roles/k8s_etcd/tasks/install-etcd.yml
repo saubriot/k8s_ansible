@@ -1,0 +1,68 @@
+---
+# file: roles/k8s_admin/tasks/install-etcd.yml
+    
+- name: install the package "etcd"
+  apt:
+    pkg: 
+    - etcd
+
+- name: remove /etc/etcd if exists
+  file:
+    path: /etc/etcd
+    state: absent
+
+- name: create directory /etc/etcd
+  file:
+    path: /etc/etcd
+    state: directory
+
+- name: chown -R etcdadmin:etcdadmin /home/etcdadmin/cfssl
+  shell: |
+    cp -p /home/etcdadmin/cfssl/ca.pem /etc/etcd
+    cp -p /home/etcdadmin/cfssl/etcd.pem /etc/etcd
+    cp -p /home/etcdadmin/cfssl/etcd-key.pem /etc/etcd
+
+- name: create file /etc/systemd/system/etcd.service
+  copy:
+    content: |
+      [Unit]
+      Description=etcd
+      Documentation=https://github.com/coreos
+      
+      [Service]
+      ExecStart=/usr/bin/etcd \
+        --name {{ ansible_host }} \
+        --cert-file=/etc/etcd/etcd.pem \
+        --key-file=/etc/etcd/etcd-key.pem \
+        --peer-cert-file=/etc/etcd/etcd.pem \
+        --peer-key-file=/etc/etcd/etcd-key.pem \
+        --trusted-ca-file=/etc/etcd/ca.pem \
+        --peer-trusted-ca-file=/etc/etcd/ca.pem \
+        --peer-client-cert-auth \
+        --client-cert-auth \
+        --initial-advertise-peer-urls https://{{ ansible_host }}:2380 \
+        --listen-peer-urls https://{{ ansible_host }}:2380 \
+        --listen-client-urls https://{{ ansible_host }}:2379,http://127.0.0.1:2379 \
+        --advertise-client-urls https://{{ ansible_host }}:2379 \
+        --initial-cluster-token etcd-cluster-0 \
+        --initial-cluster {{ etcd.initial_cluster }} \
+        --initial-cluster-state new \
+        --data-dir=/var/lib/etcd
+      Restart=on-failure
+      RestartSec=5
+    dest: /etc/systemd/system/etcd.service
+
+- name: systemd daemon reload
+  systemd:
+    daemon_reload: true
+
+- name: enable service etcd
+  service:
+    name: etcd
+    enabled: yes    
+
+- name: restart service etcd
+  service:
+    name: etcd
+    state: restarted
+   

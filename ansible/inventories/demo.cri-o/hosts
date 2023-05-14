@@ -2,10 +2,10 @@
 strasbourg.europe ansible_host=192.168.10.141
 
 [k8s_master_nodes]
-#paris.europe ansible_host=192.168.10.52 init_master=single
-paris.europe ansible_host=192.168.10.52 init_master=multi
-berlin.europe ansible_host=192.168.10.55 init_master=join
-roma.europe ansible_host=192.168.10.67 init_master=join
+paris.europe ansible_host=192.168.10.52 init_master=single
+#paris.europe ansible_host=192.168.10.52 init_master=multi
+#berlin.europe ansible_host=192.168.10.55 init_master=join
+#roma.europe ansible_host=192.168.10.67 init_master=join
 
 [k8s_nodes]
 lisboa.europe ansible_host=192.168.10.91
@@ -22,6 +22,6 @@ paris.europe ansible_host=192.168.10.52
 paris.europe ansible_host=192.168.10.52 reset=true
 berlin.europe ansible_host=192.168.10.55 reset=true
 roma.europe ansible_host=192.168.10.67 reset=true
-#lisboa.europe ansible_host=192.168.10.91 reset=true
-#madrid.europe ansible_host=192.168.10.92 reset=true
-#amsterdam.europe ansible_host=192.168.10.93 reset=true
+lisboa.europe ansible_host=192.168.10.91 reset=true
+madrid.europe ansible_host=192.168.10.92 reset=true
+amsterdam.europe ansible_host=192.168.10.93 reset=true

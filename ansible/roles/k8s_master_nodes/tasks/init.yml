@@ -11,3 +11,9 @@
     name: kubeadmin
     shell: /bin/bash
     append: yes
+
+- name: create openebs storage class hostpath
+  file:
+    path: "{{ k8s.openebs.storageclass.hostpath }}"
+    state: directory
+    mode: '0755'    

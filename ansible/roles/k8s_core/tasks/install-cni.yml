@@ -2,13 +2,17 @@
 # file: roles/k8s_core/tasks/install-cni.yml
 
 - name: install CNI "weave"
-  shell: kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+  shell: |
+    kubectl apply -f https://github.com/weaveworks/weave/releases/download/{{ k8s.core.cni.weave.version }}/weave-daemonset-k8s.yaml
+    kubectl wait --namespace kube-system --for=condition=ready pods --timeout=360s
   become: true
   become_user: kubeadmin
   when: k8s.core.cni.vendor == "weave"
 
 - name: install CNI "flannel"
-  shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+  shell: |
+    kubectl apply -f https://github.com/flannel-io/flannel/releases/{{ k8s.core.cni.flannel.version }}/download/kube-flannel.yml
+    kubectl wait --namespace kube-system --for=condition=ready pods --timeout=360s
   become: true
   become_user: kubeadmin
   when: k8s.core.cni.vendor == "flannel"
@@ -24,9 +28,10 @@
 - name: install CNI "calico"
   shell: |
     kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/{{ k8s.core.cni.calico.version }}/manifests/custom-resources.yaml
-    kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/{{ k8s.core.cni.calico.version }}/manifests/custom-resources.yaml
     curl -o /home/kubeadmin/calico/calico.yaml -O -L "https://raw.githubusercontent.com/projectcalico/calico/{{ k8s.core.cni.calico.version }}/manifests/calico.yaml"
     kubectl apply -f /home/kubeadmin/calico/calico.yaml
+    kubectl wait --namespace kube-system --for=condition=ready pod --selector=k8s-app=calico-kube-controllers --timeout=360s
+    kubectl wait --namespace kube-system --for=condition=ready pod --selector=k8s-app=calico-node --timeout=360s
   become: true
   become_user: kubeadmin
   when: k8s.core.cni.vendor == "calico"

@@ -7,7 +7,7 @@ k8s:
   apt:
     version: 1.27.1-00
   cri:
-    type:
+    vendor:
       crio: true
       containerd: false
     criSocket: unix:///var/run/crio/crio.sock
@@ -16,8 +16,7 @@ k8s:
       version: 1.25
   master:
     pod_network_cidr: 10.244.0.0/16   
-    kubeadm_extra: "--v=5"
-    multi_master: true
+    kubeadm_extra: "--v=99"
     load_balancer_ip: 192.168.10.141
     apiserver_port: 6443
     untaint: false
@@ -47,6 +46,10 @@ k8s:
       vendor: calico # calico, weave, flannel
       calico:
         version: v3.25.1
+      weave:
+        version: v2.8.1
+      flannel:
+        version: latest
 
     metallb:
       ip_range: "192.168.10.180-192.168.10.189"

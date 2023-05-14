@@ -12,24 +12,40 @@
     path: /etc/cni/net.d
     state: absent
   when: reset
+  ignore_errors: true  
 
 - name: remove /var/lib/cni if exists
   file:
     path: /var/lib/cni
     state: absent
   when: reset
+  ignore_errors: true  
 
 - name: remove /var/lib/calico if exists
   file:
     path: /var/lib/calico
     state: absent
   when: reset
+  ignore_errors: true  
 
 - name: remove /var/lib/weave if exists
   file:
     path: /var/lib/weave
     state: absent
   when: reset
+  ignore_errors: true  
+
+- name: stop service crio
+  service:
+    name: crio
+    state: stop
+  ignore_errors: true  
+
+- name: stop service containerd
+  service:
+    name: containerd
+    state: stop
+  ignore_errors: true  
 
 - name: remove cri packages "docker-engine docker.io containerd runc containerd.io cri-o cri-o-runc"
   apt:
@@ -42,34 +58,70 @@
     - cri-o
     - cri-o-runc
     state: absent
+  when: reset
+  ignore_errors: true  
 
 - name: apt autoremove
   apt:
     autoremove: yes
+  when: reset
+  ignore_errors: true  
     
-- name: remove /var/lib/containerd if exists
-  file:
-    path: /var/lib/containerd
-    state: absent
-  when: reset
-    
-- name: remove /var/lib/containers if exists
-  file:
-    path: /var/lib/containers
-    state: absent
-  when: reset
-
-- name: remove /var/lib/docker if exists
-  file:
-    path: /var/lib/docker
-    state: absent
-  when: reset
+#- name: remove /var/lib/containerd if exists
+#  file:
+#    path: /var/lib/containerd
+#    state: absent
+#  when: reset
+#  ignore_errors: true  
+#
+#- name: create directory /var/lib/containerd
+#  file:
+#    path: /var/lib/containerd
+#    state: directory
+#  when: reset
+#  ignore_errors: true  
+#
+#- name: remove /var/lib/containers if exists
+#  file:
+#    path: /var/lib/containers
+#    state: absent
+#  when: reset
+#  ignore_errors: true  
+#
+#- name: create directory /var/lib/containers
+#  file:
+#    path: /var/lib/containers
+#    state: directory
+#  when: reset
+#  ignore_errors: true  
+#
+#- name: remove /var/lib/docker if exists
+#  file:
+#    path: /var/lib/docker
+#    state: absent
+#  when: reset
+#  ignore_errors: true  
+#
+#- name: create directory /var/lib/docker
+#  file:
+#    path: /var/lib/docker
+#    state: directory
+#  when: reset
+#  ignore_errors: true  
 
 - name: remove /etc/kubernetes if exists
   file:
     path: /etc/kubernetes
     state: absent
   when: reset
+  ignore_errors: true  
+
+- name: create directory /etc/kubernetes
+  file:
+    path: /etc/kubernetes
+    state: directory
+  when: reset
+  ignore_errors: true  
 
 #- name: delete (weave|vxlan|vethwe|tun) interfaces if exists
 #  shell: |
@@ -84,7 +136,9 @@
     path: "{{ k8s.openebs.storageclass.hostpath }}"
     state: absent
   when: reset
+  ignore_errors: true  
 
 - name: reboot the host
   reboot:
   when: reset
+  ignore_errors: true  

@@ -1,14 +1,26 @@
 
 all:
   fetch_directory: /tmp
-  environment: prod.containerd
+  environment: demo
 
 k8s:
   apt:
     version: 1.27.1-00
+  cluster:
+    configuration: 
+      etcd: |
+        etcd:
+          external:
+            endpoints:
+              - https://192.168.20.52:2379
+              - https://192.168.20.55:2379
+              - https://192.168.20.67:2379
+            caFile: /etc/etcd/ca.pem
+            certFile: /etc/etcd/etcd.pem
+            keyFile: /etc/etcd/etcd-key.pem        
+
   cri:
     vendor: containerd
-#    criSocket: unix:///var/run/crio/crio.sock
     criSocket: unix:///var/run/containerd/containerd.sock
     crio:
       os: Debian_11
@@ -16,30 +28,29 @@ k8s:
   master:
     pod_network_cidr: 10.244.0.0/16   
     kubeadm_extra: "--v=99"
-    multi_master: true
-    load_balancer_ip: 192.168.110.141
+    load_balancer_ip: 192.168.20.141
     apiserver_port: 6443
     untaint: false
     untaint_master_nodes:
-      - frangipanier.flowers
+      - lisboa.europe
 
   openebs:
     storageclass:
       hostpath: /data_storage/openebs
 
   coredns:
-    namespace: coredns-flowers
+    namespace: coredns-europe
     port: 53
-    zone_name: flowers
-    external_ip: 192.168.110.180
+    zone_name: europe
+    external_ip: 192.168.20.180
     forward: 8.8.8.8 8.8.4.4
 
     zone: |
-      flowers.              IN  SOA ns1.flowers. root.flowers. 2015082541 7200 3600 1209600 3600
-      flowers.              IN  NS  ns1.flowers.
-      ns1                   IN  A   192.168.110.180
+      europe.               IN  SOA ns1.europe. root.europe. 2015082541 7200 3600 1209600 3600
+      europe.               IN  NS  ns1.europe.
+      ns1                   IN  A   192.168.20.180
 
-      dashboard.k8s         IN  A   192.168.110.180
+      dashboard.k8s         IN  A   192.168.20.180
 
   core:
     cni: 
@@ -52,7 +63,7 @@ k8s:
         version: latest
 
     metallb:
-      ip_range: "192.168.110.180-192.168.110.189"
+      ip_range: "192.168.20.180-192.168.20.189"
       version: v0.13.9
     
     nginx:
@@ -62,7 +73,7 @@ k8s:
       version: v1.11.0
       namespace: cert-manager
       ca:
-        cn: "k8s flowers CA"
+        cn: "k8s europe CA"
         csr:
           C: France
           L: Paris
@@ -71,12 +82,12 @@ k8s:
         renewBefore: 360h
 
     dashboard:
-      csr_CN: dashboard.k8s.flowers
-      host: dashboard.k8s.flowers
+      csr_CN: dashboard.k8s.europe
+      host: dashboard.k8s.europe
       version: v2.7.0
       
     coredns: 
-      domain: k8s.flowers
+      domain: k8s.europe
       port: 53
-      forward: 192.168.110.180
+      forward: 192.168.20.180
 
