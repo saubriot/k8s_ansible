@@ -63,13 +63,27 @@ The ansible directory structure has been defined as followed :
 
 ### 4.1.a Tests passed
 
-|            |        bare metal         |      libvirt           |       virtualbox          |
-| container  |------------|--------------|---------|--------------|------------|--------------|
-|            | single     | multi master | single  | multi master | single     | multi master |
-|------------|------------|--------------|---------|--------------|------------|--------------|
-| containerd | passed     | passed       | passed  | passed       | passed     | passed       |
-| cri-o      | passed     | passed       | passed  | passed       | passed     | passed       |
 
+**bare metal :**
+
+| container  | single     | multi master |
+|------------|------------|--------------|
+| containerd | passed     | passed       |
+| cri-o      | passed     | passed       |
+
+**libvirt :**
+
+| container  | single     | multi master |
+|------------|------------|--------------|
+| containerd | passed     | passed       |
+| cri-o      | passed     | passed       |
+
+**virtualbox :**
+
+| container  | single     | multi master |
+|------------|------------|--------------|
+| containerd | passed     | passed       |
+| cri-o      | passed     | passed       |
 
 ## 4.2. Install k8s administration host
 ### 4.2.a. Objective
