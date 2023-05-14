@@ -28,7 +28,14 @@ The ansible directory structure has been defined as followed :
   - k8s_core.yml : install the core kubernetes components : cni, metallb, nginx, dashboard
   - platform.yml : the all in one playbook
   - **inventories** : contains information about the environments to deploy
-    - **demo** : demo environment
+    - **demo.containerd.libvirt.single** : demo environment single master node, using containerd cri and libvirt to host VM (specific IP addresses)
+    - **demo.containerd.libvirt.multi** : demo environment multi master nodes, using containerd cri and libvirt to host VM (specific IP addresses)
+    - **demo.cri-o.libvirt.single** : demo environment single master node, using cri-o cri and libvirt to host VM (specific IP addresses)
+    - **demo.cri-o.libvirt.multi** : demo environment multi master nodes, using cri-o cri and libvirt to host VM (specific IP addresses)
+    - **demo.containerd.virtualbox.single** : demo environment single master node, using containerd cri and virtualbox to host VM (specific IP addresses)
+    - **demo.containerd.virtualbox.multi** : demo environment multi master nodes, using containerd cri and virtualbox to host VM (specific IP addresses)
+    - **demo.cri-o.virtualbox.single** : demo environment single master node, using cri-o cri and virtualbox to host VM (specific IP addresses)
+    - **demo.cri-o.virtualbox.multi** : demo environment multi master nodes, using cri-o cri and virtualbox to host VM (specific IP addresses)
       - hosts : contains the hosts list per role. Note : roles are matching the main playbooks
       - **group_vars** :
         - all : global settings : all settings and kubernetes settings
@@ -36,10 +43,12 @@ The ansible directory structure has been defined as followed :
         - k8s_etcd : settings for administration host (role k8s_etcd) : external etcd settings
   - **roles**
     - **common** : common installation tasks to execute
+    - **cri** : cri runtime installation tasks to execute
     - **k8s** : kubernetes packages installation tasks to execute
     - **k8s_admin** : administration installation tasks to execute
     - **k8s_etcd** : external etcd installation tasks to execute
     - **k8s_core** : kubernetes core components installation tasks to execute
+    - **k8s_etcd** : external etcd installation tasks to execute
     - **k8s_master_nodes** : kubernetes master node installation tasks to execute
     - **k8s_nodes** : kubernetes nodes installation tasks to execute (not including master node)
     - **k8s_reset** : specific tasks to reset kubernetes installation : revert to a clean pre installation
