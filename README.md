@@ -21,7 +21,8 @@ Demo architecture used for the cluster (see https://github.com/saubriot/k8s_vagr
 
 The ansible directory structure has been defined as followed :
 - **ansible** : contains the main playbooks, the environments to deploy (under inventories) and the roles and tasks to execute (under roles) 
-  - k8s_admin.yml : install administration host
+  - k8s_admin.yml : install administration host including haproxy for multi master
+  - k8s_etcd.yml : install external etcd used by kubernetes cluster
   - k8s_master_node.yml : install kubernetes master node
   - k8s_nodes.yml : install kubernetes node with master node join
   - k8s_core.yml : install the core kubernetes components : cni, metallb, nginx, dashboard
@@ -31,12 +32,13 @@ The ansible directory structure has been defined as followed :
       - hosts : contains the hosts list per role. Note : roles are matching the main playbooks
       - **group_vars** :
         - all : global settings : all settings and kubernetes settings
-        - k8s_admin : settings for administration host (role k8s_admin) : bind and openvpn settings
+        - k8s_admin : settings for administration host (role k8s_admin) : haproxy, bind and openvpn settings
+        - k8s_etcd : settings for administration host (role k8s_etcd) : external etcd settings
   - **roles**
     - **common** : common installation tasks to execute
-    - **docker** : docker packages installation tasks to execute
     - **k8s** : kubernetes packages installation tasks to execute
     - **k8s_admin** : administration installation tasks to execute
+    - **k8s_etcd** : external etcd installation tasks to execute
     - **k8s_core** : kubernetes core components installation tasks to execute
     - **k8s_master_nodes** : kubernetes master node installation tasks to execute
     - **k8s_nodes** : kubernetes nodes installation tasks to execute (not including master node)
@@ -46,6 +48,7 @@ The ansible directory structure has been defined as followed :
 ## 4.2. Install k8s administration host
 ### 4.2.a. Objective
 The administration host includes 2 main components :
+- An haproxy server to load balance Kubernetes control plane API requests to kubernetes master nodes
 - A DNS Server for .europe domain name resolution including hostnames (ex : paris.europe) and kubernetes domain names (ex : dashboard.k8s.europe).
 - An OpenVPN Server to connect the Cluster (usefull if you want restrict external access on a specific interface)
 
