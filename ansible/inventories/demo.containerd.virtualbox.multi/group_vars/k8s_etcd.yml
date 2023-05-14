@@ -2,7 +2,7 @@
 
 etcd:
   ca:
-    cn: "etc europe CA"
+    cn: "etcd europe CA"
     csr:
       C: France
       L: Paris

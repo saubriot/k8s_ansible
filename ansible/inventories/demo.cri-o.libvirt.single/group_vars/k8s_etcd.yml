@@ -1,0 +1,13 @@
+# etcd configuration
+
+etcd:
+  ca:
+    cn: "etcd europe CA"
+    csr:
+      C: France
+      L: Paris
+      O: Europe
+      ST: Ile de France
+    expiry: 43830h
+  hostname: 192.168.20.52
+  initial_cluster: 192.168.20.52=https://192.168.20.52:2380

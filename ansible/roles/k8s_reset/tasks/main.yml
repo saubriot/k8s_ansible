@@ -138,6 +138,42 @@
   when: reset
   ignore_errors: true  
 
+- name: stop service etcd
+  service:
+    name: etcd
+    state: stop
+  ignore_errors: true  
+
+- name: systemd daemon reload
+  systemd:
+    daemon_reload: true
+
+- name: remove package etcd
+  apt:
+    name: etcd
+    state: absent
+
+- name: remove /var/lib/etcd if exists
+  file:
+    path: /var/lib/etcd
+    state: absent
+  when: reset
+  ignore_errors: true  
+ 
+- name: create directory /var/lib/etcd
+  file:
+    path: /var/lib/etcd
+    state: directory
+  when: reset
+  ignore_errors: true  
+
+- name: remove /etc/etcd if exists
+  file:
+    path: /etc/etcd
+    state: absent
+  when: reset
+  ignore_errors: true  
+
 - name: reboot the host
   reboot:
   when: reset

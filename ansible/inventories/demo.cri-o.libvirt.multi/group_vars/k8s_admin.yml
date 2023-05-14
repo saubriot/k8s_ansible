@@ -38,7 +38,7 @@ haproxy:
     	errorfile 504 /etc/haproxy/errors/504.http
 
     frontend kubernetes
-    bind 192.168.10.141:6443
+    bind 192.168.20.141:6443
     option tcplog
     mode tcp
     default_backend k8s-master-nodes
@@ -47,16 +47,16 @@ haproxy:
     mode tcp
     balance roundrobin
     option tcp-check
-    server k8s-master-0 192.168.10.52:6443 check fall 3 rise 2
-    server k8s-master-1 192.168.10.55:6443 check fall 3 rise 2
-    server k8s-master-2 192.168.10.67:6443 check fall 3 rise 2
+    server k8s-master-0 192.168.20.52:6443 check fall 3 rise 2
+    server k8s-master-1 192.168.20.55:6443 check fall 3 rise 2
+    server k8s-master-2 192.168.20.67:6443 check fall 3 rise 2
 
 # bind configuration
 
 bind:
-  acl_trusted: "192.168.10.0/24; 10.8.0.0/24;"
+  acl_trusted: "192.168.20.0/24; 10.8.0.0/24;"
   forwarders: "8.8.8.8; 8.8.4.4;"
-  listen_ip: "192.168.10.141"  
+  listen_ip: "192.168.20.141"  
   port: 53
   zone_name: europe
   zone: |
@@ -68,35 +68,35 @@ bind:
               86400       ;Minimum TTL
       )
       @       IN  NS          ns1.europe.
-      @       IN  A           192.168.10.141
-      @       IN  A           192.168.10.52
-      @       IN  A           192.168.10.55
-      @       IN  A           192.168.10.67
-      @       IN  A           192.168.10.91
-      @       IN  A           192.168.10.92
-      @       IN  A           192.168.10.93
-      ns1             IN  A   192.168.10.141
-      strasbourg      IN  A   192.168.10.141
-      paris           IN  A   192.168.10.52
-      roma            IN  A   192.168.10.55
-      madrid          IN  A   192.168.10.67
-      lisboa          IN  A   192.168.10.91
-      madrid          IN  A   192.168.10.92
-      amsterdam       IN  A   192.168.10.93
-      dashboard.k8s   IN  A   192.168.10.190
+      @       IN  A           192.168.20.141
+      @       IN  A           192.168.20.52
+      @       IN  A           192.168.20.55
+      @       IN  A           192.168.20.67
+      @       IN  A           192.168.20.91
+      @       IN  A           192.168.20.92
+      @       IN  A           192.168.20.93
+      ns1             IN  A   192.168.20.141
+      strasbourg      IN  A   192.168.20.141
+      paris           IN  A   192.168.20.52
+      roma            IN  A   192.168.20.55
+      madrid          IN  A   192.168.20.67
+      lisboa          IN  A   192.168.20.91
+      madrid          IN  A   192.168.20.92
+      amsterdam       IN  A   192.168.20.93
+      dashboard.k8s   IN  A   192.168.20.190
 
 # onpenvpn configuration
 
 openvpn:
-  listen_ip: "192.168.10.141"
+  listen_ip: "192.168.20.141"
   port: 1194
   proto: tcp
   iface: "eth0"
   server_ip: "10.8.0.0"
-  dns: "192.168.10.141"
-  network_route: "192.168.10.0"
+  dns: "192.168.20.141"
+  network_route: "192.168.20.0"
   network_route_iface: "eth1"
-  network_route_delete: "192.168.10.0/24"
+  network_route_delete: "192.168.20.0/24"
   easyrsa_vars: |
       export KEY_COUNTRY="EU"
       export KEY_PROVINCE="France"

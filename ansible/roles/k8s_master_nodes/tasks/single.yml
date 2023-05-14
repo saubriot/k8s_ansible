@@ -1,9 +1,31 @@
 ---
 # file: roles/k8s_master_nodes/tasks/single.yml
 
+- name: create file /var/log/kubeadm_init_config.yaml
+  copy:
+    content: |
+      ---
+      apiVersion: kubeadm.k8s.io/v1beta3
+      kind: InitConfiguration
+      nodeRegistration:
+        criSocket: "{{ k8s.cri.criSocket }}"
+      localAPIEndpoint:
+        advertiseAddress: "{{ ansible_host }}"
+        bindPort: {{ k8s.master.apiserver_port }}    
+      ---
+      apiVersion: kubeadm.k8s.io/v1beta3
+      kind: ClusterConfiguration
+      kubernetesVersion: v1.27.1
+      controlPlaneEndpoint: "{{ k8s.master.load_balancer_ip }}:{{ k8s.master.apiserver_port }}"
+      networking:
+        podSubnet: "{{ k8s.master.pod_network_cidr }}"      
+      {{ k8s.cluster.configuration.etcd | indent(0) }}
+
+    dest: /var/log/kubeadm_init_config.yaml
+
 - name: kubeadm init single master
   shell: |
-    kubeadm init --cri-socket {{ k8s.cri.criSocket }} --apiserver-advertise-address {{ ansible_host }} --apiserver-bind-port {{ k8s.master.apiserver_port }} --upload-certs --pod-network-cidr {{ k8s.master.pod_network_cidr }} {{ k8s.master.kubeadm_extra }} --skip-phases=addon/kube-proxy > /var/log/kubeadm_init.log
+    kubeadm init --config /var/log/kubeadm_init_config.yaml --upload-certs {{ k8s.master.kubeadm_extra }} --skip-phases=addon/kube-proxy > /var/log/kubeadm_init.log
     mkdir -p /home/kubeadmin/.kube
     cp -f /etc/kubernetes/admin.conf /home/kubeadmin/.kube/config
     chmod -R 0755 /home/kubeadmin/.kube
