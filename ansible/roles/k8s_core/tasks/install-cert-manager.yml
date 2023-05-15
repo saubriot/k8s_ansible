@@ -4,6 +4,11 @@
 - name: install cert-manager
   shell: |
     kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/{{ k8s.core.cert_manager.version }}/cert-manager.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: install cert-manager - wait for
+  shell: |
     kubectl wait --namespace cert-manager --for=condition=ready pod --selector=app=cert-manager --timeout=360s
     kubectl wait --namespace cert-manager --for=condition=ready pod --selector=app=webhook --timeout=360s
     kubectl wait --namespace cert-manager --for=condition=ready pod --selector=app=cainjector --timeout=360s

@@ -14,6 +14,19 @@
   when: reset
   ignore_errors: true  
 
+- name: create directory /etc/cni/net.d 
+  file:
+    path: /etc/cni/net.d 
+    state: directory
+  when: reset
+  ignore_errors: true  
+
+- name: touch /etc/cni/net.d/99-dummy.conf
+  shell: |
+    touch /etc/cni/net.d/99-dummy.conf
+  when: reset
+  ignore_errors: true  
+
 - name: remove /var/lib/cni if exists
   file:
     path: /var/lib/cni
@@ -67,47 +80,47 @@
   when: reset
   ignore_errors: true  
     
-#- name: remove /var/lib/containerd if exists
-#  file:
-#    path: /var/lib/containerd
-#    state: absent
-#  when: reset
-#  ignore_errors: true  
-#
-#- name: create directory /var/lib/containerd
-#  file:
-#    path: /var/lib/containerd
-#    state: directory
-#  when: reset
-#  ignore_errors: true  
-#
-#- name: remove /var/lib/containers if exists
-#  file:
-#    path: /var/lib/containers
-#    state: absent
-#  when: reset
-#  ignore_errors: true  
-#
-#- name: create directory /var/lib/containers
-#  file:
-#    path: /var/lib/containers
-#    state: directory
-#  when: reset
-#  ignore_errors: true  
-#
-#- name: remove /var/lib/docker if exists
-#  file:
-#    path: /var/lib/docker
-#    state: absent
-#  when: reset
-#  ignore_errors: true  
-#
-#- name: create directory /var/lib/docker
-#  file:
-#    path: /var/lib/docker
-#    state: directory
-#  when: reset
-#  ignore_errors: true  
+- name: remove /var/lib/containerd if exists
+  file:
+    path: /var/lib/containerd
+    state: absent
+  when: reset and cleanup_containers
+  ignore_errors: true  
+
+- name: create directory /var/lib/containerd
+  file:
+    path: /var/lib/containerd
+    state: directory
+  when: reset and cleanup_containers
+  ignore_errors: true  
+
+- name: remove /var/lib/containers if exists
+  file:
+    path: /var/lib/containers
+    state: absent
+  when: reset and cleanup_containers
+  ignore_errors: true  
+
+- name: create directory /var/lib/containers
+  file:
+    path: /var/lib/containers
+    state: directory
+  when: reset and cleanup_containers
+  ignore_errors: true  
+
+- name: remove /var/lib/docker if exists
+  file:
+    path: /var/lib/docker
+    state: absent
+  when: reset and cleanup_containers
+  ignore_errors: true  
+
+- name: create directory /var/lib/docker
+  file:
+    path: /var/lib/docker
+    state: directory
+  when: reset and cleanup_containers
+  ignore_errors: true  
 
 - name: remove /etc/kubernetes if exists
   file:

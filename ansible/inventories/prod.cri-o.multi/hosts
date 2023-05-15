@@ -25,13 +25,13 @@ iris.flowers ansible_host=192.168.110.52
 [k8s_add_nodes]
 
 [k8s_reset]
-iris.flowers ansible_host=192.168.110.52 reset=True
-magnolia.flowers ansible_host=192.168.110.55 reset=True
-orchidee.flowers ansible_host=192.168.110.67 reset=True
-geranium.flowers ansible_host=192.168.110.92 reset=True
-jasmin.flowers ansible_host=192.168.110.95 reset=True
-frangipanier.flowers ansible_host=192.168.110.91 reset=True
-rose.flowers ansible_host=192.168.110.96 reset=True
-ibiscus.flowers ansible_host=192.168.110.94 reset=True
+iris.flowers ansible_host=192.168.110.52 reset=True cleanup_containers=True
+magnolia.flowers ansible_host=192.168.110.55 reset=True cleanup_containers=True
+orchidee.flowers ansible_host=192.168.110.67 reset=True cleanup_containers=True
+geranium.flowers ansible_host=192.168.110.92 reset=True cleanup_containers=True
+jasmin.flowers ansible_host=192.168.110.95 reset=True cleanup_containers=True
+frangipanier.flowers ansible_host=192.168.110.91 reset=True cleanup_containers=True
+rose.flowers ansible_host=192.168.110.96 reset=True cleanup_containers=True
+ibiscus.flowers ansible_host=192.168.110.94 reset=True cleanup_containers=True
 
 

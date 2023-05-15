@@ -23,9 +23,9 @@ paris.europe ansible_host=192.168.10.52
 paris.europe ansible_host=192.168.10.52
 
 [k8s_reset]
-paris.europe ansible_host=192.168.10.52 reset=True
-berlin.europe ansible_host=192.168.10.55 reset=True
-roma.europe ansible_host=192.168.10.67 reset=True
-lisboa.europe ansible_host=192.168.10.91 reset=True
-madrid.europe ansible_host=192.168.10.92 reset=True
-amsterdam.europe ansible_host=192.168.10.93 reset=True
+paris.europe ansible_host=192.168.10.52 reset=True cleanup_containers=False
+berlin.europe ansible_host=192.168.10.55 reset=True cleanup_containers=False
+roma.europe ansible_host=192.168.10.67 reset=True cleanup_containers=False
+lisboa.europe ansible_host=192.168.10.91 reset=True cleanup_containers=False
+madrid.europe ansible_host=192.168.10.92 reset=True cleanup_containers=False
+amsterdam.europe ansible_host=192.168.10.93 reset=True cleanup_containers=False
