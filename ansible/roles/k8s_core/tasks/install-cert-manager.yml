@@ -7,10 +7,20 @@
   become: true
   become_user: kubeadmin
 
-- name: install cert-manager - wait for
+- name: install cert-manager - wait for cert-manager
   shell: |
     kubectl wait --namespace cert-manager --for=condition=ready pod --selector=app=cert-manager --timeout=360s
+  become: true
+  become_user: kubeadmin
+
+- name: install cert-manager - wait for webhook
+  shell: |
     kubectl wait --namespace cert-manager --for=condition=ready pod --selector=app=webhook --timeout=360s
+  become: true
+  become_user: kubeadmin
+
+- name: install cert-manager - wait for cainjector
+  shell: |
     kubectl wait --namespace cert-manager --for=condition=ready pod --selector=app=cainjector --timeout=360s
   become: true
   become_user: kubeadmin
