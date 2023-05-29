@@ -1,6 +1,9 @@
 ---
 # file: roles/k8s_admin/tasks/install.yml
 
+- include_tasks: "install-harbor.yml"
+  when: task == "harbor" or task == "all"
+
 - include_tasks: "install-haproxy.yml"
   when: task == "haproxy" or task == "all"
 

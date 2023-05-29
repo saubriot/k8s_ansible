@@ -69,7 +69,7 @@ The ansible directory structure has been defined as followed :
 | container  | single     | multi master |
 |------------|------------|--------------|
 | containerd | passed     | passed       |
-| cri-o      | passed     | passed       |
+| cri-o      | passed     | not passed   |
 
 **libvirt :**
 

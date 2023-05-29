@@ -1,0 +1,225 @@
+---
+# file: roles/k8s_admin/tasks/harbor.yml
+
+- name: mkdir folder /tmp/k8s_admin/harbor
+  file:
+    path: /tmp/k8s_admin/harbor
+    state: directory
+
+- name: Download offline version of harbor
+  get_url:
+    url: https://github.com/goharbor/harbor/releases/download/{{ harbor.version }}/harbor-offline-installer-{{ harbor.version }}.tgz
+    dest: /tmp/k8s_admin/harbor
+
+- name: Download offline version of harbor signature
+  get_url:
+    url: https://github.com/goharbor/harbor/releases/download/{{ harbor.version }}/harbor-offline-installer-{{ harbor.version }}.tgz.asc
+    dest: /tmp/k8s_admin/harbor
+
+- name: Verify integrity of offline version of harbor donwloaded
+  shell: |
+    cd /tmp/k8s_admin/harbor
+    gpg --keyserver hkps://keyserver.ubuntu.com --receive-keys 644FF454C0B4115C
+    gpg -v --keyserver hkps://keyserver.ubuntu.com --verify harbor-offline-installer-{{ harbor.version }}.tgz.asc
+
+- name: remove /usr/local/harbor if exists
+  file:
+    path: /usr/local/harbor
+    state: absent
+
+- name: mkdir folder /usr/local/harbor
+  file:
+    path: /usr/local/harbor
+    state: directory
+
+- name: Uncompress the offline version of harbor donwloaded
+  shell: |
+    cd /tmp/k8s_admin/harbor
+    tar zxvf harbor-offline-installer-{{ harbor.version }}.tgz -C /usr/local
+
+- name: remove /tmp/k8s_admin/harbor/cfssl if exists
+  file:
+    path: /tmp/k8s_admin/harbor/cfssl
+    state: absent
+
+- name: create directory /tmp/k8s_admin/harbor/cfssl
+  file:
+    path: /tmp/k8s_admin/harbor/cfssl
+    state: directory
+
+- name: create file /tmp/k8s_admin/harbor/cfssl/ca-config.json
+  copy:
+    content: |      
+      {
+        "signing": {
+          "default": {
+            "expiry": "8760h"
+          },
+          "profiles": {
+            "harbor": {
+              "usages": ["signing", "key encipherment", "server auth", "client auth"],
+              "expiry": "{{ harbor.ca.expiry }}"
+            }
+          }
+        }
+      }
+    dest: /tmp/k8s_admin/harbor/cfssl/ca-config.json
+
+- name: create file /tmp/k8s_admin/harbor/cfssl/ca-csr.json
+  copy:
+    content: |
+      {
+        "CN": "{{ harbor.ca.cn }}",
+        "key": {
+          "algo": "rsa",
+          "size": 4096
+        },
+        "names": [
+        {
+          "C": "{{ harbor.ca.csr.C }}",
+          "L": "{{ harbor.ca.csr.L }}",
+          "O": "{{ harbor.ca.csr.O }}",
+          "ST": "{{ harbor.ca.csr.ST }}"
+        }
+       ]
+      }
+    dest: /tmp/k8s_admin/harbor/cfssl/ca-csr.json
+
+- name: cfssl gencert -initca 
+  shell: |
+    cd /tmp/k8s_admin/harbor/cfssl 
+    cfssl gencert -initca ca-csr.json | cfssljson -bare ca
+
+- name: create file /tmp/k8s_admin/harbor/cfssl/harbor-csr.json
+  copy:
+    content: |
+      {
+        "CN": "{{ harbor.ca.cn }}",
+        "key": {
+          "algo": "rsa",
+          "size": 4096
+        },
+        "names": [
+        {
+          "C": "{{ harbor.ca.csr.C }}",
+          "L": "{{ harbor.ca.csr.L }}",
+          "O": "{{ harbor.ca.csr.O }}",
+          "ST": "{{ harbor.ca.csr.ST }}"
+        }
+       ]
+      }
+    dest: /tmp/k8s_admin/harbor/cfssl/harbor-csr.json
+
+- name: cfssl gencert -ca
+  shell: |
+    cd /tmp/k8s_admin/harbor/cfssl 
+    cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -hostname={{ harbor.hostname }} -profile=harbor harbor-csr.json | cfssljson -bare harbor
+
+- name: install the package "ca-certificates curl gnupg"
+  apt:
+    pkg:
+    - ca-certificates 
+    - curl 
+    - gnupg
+
+- name: add docker apt signing key
+  apt_key:
+    url: https://download.docker.com/linux/debian/gpg
+    state: present
+
+- name: add apt docker source list
+  shell: echo "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list
+
+- name: apt update
+  apt:
+    update_cache: yes
+
+- name: install the packages "docker-ce docker-ce-cli docker-compose"
+  apt:
+    pkg:
+    - docker-ce
+    - docker-ce-cli
+    - docker-compose
+
+- name: create directory /etc/docker/certs.d/harbor
+  file:
+    path: /etc/docker/certs.d/harbor
+    state: directory
+
+- name: copy harbor certs to /etc/docker/certs.d/harbor
+  shell: |
+    cd /tmp/k8s_admin/harbor/cfssl
+    cp harbor.pem /etc/docker/certs.d/harbor/harbor.cert
+    cp harbor-key.pem /etc/docker/certs.d/harbor/harbor.key
+    cp ca.pem /etc/docker/certs.d/harbor/ca.crt
+
+- name: restart service docker
+  service:
+    name: docker
+    state: restarted
+
+- name: copy harbor yaml template
+  shell: |
+    cp /usr/local/harbor/harbor.yml.tmpl /usr/local/harbor/harbor.yml
+
+- name: set hostname in /usr/local/harbor/harbor.yml
+  replace: 
+    path: /usr/local/harbor/harbor.yml
+    regexp: '^hostname:(.*)+'
+    replace: 'hostname: {{ harbor.hostname }}'
+    backup: yes
+
+- name: set certificate crt in /usr/local/harbor/harbor.yml
+  replace: 
+    path: /usr/local/harbor/harbor.yml
+    regexp: '^(.+)certificate: /your/certificate/path$'
+    replace: '\1certificate: /etc/docker/certs.d/harbor/harbor.cert'
+
+- name: set private_key key in /usr/local/harbor/harbor.yml
+  replace: 
+    path: /usr/local/harbor/harbor.yml
+    regexp: '^(.+)private_key: /your/private/key/path$'
+    replace: '\1private_key: /etc/docker/certs.d/harbor/harbor.key'
+
+- name: prepare harbor docker-compose
+  shell: |
+    cd /usr/local/harbor
+    ./prepare
+    ./install.sh --with-notary
+
+#- name: create file /etc/systemd/system/harbor.service
+#  copy:
+#    content: |
+#      [Unit]
+#      Description=harbor
+#      Documentation=https://goharbor.io/docs/2.8.0
+#      
+#      [Service]
+#      ExecStart=/usr/bin/docker-compose up -d
+#      ExecStop=/usr/bin/docker-compose down
+#      Restart=on-failure
+#      RestartSec=5
+#      WorkingDirectory=/usr/local/harbor
+#    dest: /etc/systemd/system/harbor.service
+#
+#- name: systemd daemon reload
+#  systemd:
+#    daemon_reload: true
+#
+#- name: enable service harbor
+#  service:
+#    name: harbor
+#    enabled: yes    
+#
+#- name: restart service harbor
+#  service:
+#    name: harbor
+#    state: restarted
+   
+- name: Fetch certificate
+  fetch:
+    flat: yes
+    src: /etc/docker/certs.d/harbor/ca.crt
+    dest: "{{ all.fetch_directory }}/harbor-ca-{{ all.environment }}.crt"
+
+

@@ -1,3 +1,17 @@
+# harbor configuration
+
+harbor:
+  version: v2.8.1
+  ca:
+    cn: "harbor europe CA"
+    csr:
+      C: France
+      L: Paris
+      O: Europe
+      ST: Ile de France
+    expiry: 43830h
+  hostname: 192.168.20.141
+
 # haproxy configuration
 
 haproxy:
