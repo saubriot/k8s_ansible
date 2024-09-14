@@ -1,5 +1,4 @@
 ---
-# file: roles/k8s/tasks/install.yml
 
 - name: modprobe br_netfilter & sysctl
   shell: |
@@ -20,13 +19,6 @@
 - name: sysctl --system
   shell: sysctl --system
 
-- name: install packages "ebtables, ethtool"
-  apt:
-    pkg:
-    - ebtables
-    - ethtool
-  when: ansible_facts['os_family'] == "Debian"
-
 - name: update-alternatives --set iptables, ip6tables, arptables, ebtables
   shell: |
     update-alternatives --set iptables /usr/sbin/iptables-legacy
@@ -34,35 +26,12 @@
     update-alternatives --set arptables /usr/sbin/arptables-legacy
     update-alternatives --set ebtables /usr/sbin/ebtables-legacy
 
-- name: apt update
-  apt:
-    update_cache: yes
-  when: ansible_facts['os_family'] == "Debian"
-
-- name: add google cloud apt signing key
-  apt_key:
-    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg 
-    state: present
-  when: ansible_facts['os_family'] == "Debian"
-
-- name: add apt kubernetes source list
-  shell: | 
-    curl -fsSL https://pkgs.k8s.io/core:/stable:/{{ k8s.apt.version }}/deb/Release.key | sudo gpg --yes --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-    sudo chmod 644 /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-    echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/{{ k8s.apt.version }}/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
-    sudo chmod 644 /etc/apt/sources.list.d/kubernetes.list
-  when: ansible_facts['os_family'] == "Debian"
-
-- name: apt update
-  apt:
-    update_cache: yes
-
-- name: apt-mark unhold kubelet kubeadm kubectl
+- name: apt-mark unhold kubernetes packages
   shell: | 
     apt-mark unhold kubelet kubeadm kubectl
   when: ansible_facts['os_family'] == "Debian"
 
-- name: install packages "kubelet, kubeadm, kubectl"
+- name: install kubernetes packages
   apt:
     pkg:
     - kubelet
@@ -70,7 +39,7 @@
     - kubectl
   when: ansible_facts['os_family'] == "Debian"
 
-- name: apt-mark hold kubelet kubeadm kubectl
+- name: apt-mark hold kubernetes packages
   shell: apt-mark hold kubelet kubeadm kubectl
 
 - name: remove swap from /etc/fstab

@@ -1,5 +1,4 @@
 ---
-# file: roles/k8s_etcd/tasks/install-cfssl.yml
 
 - name: add the user etcdadmin
   user:

@@ -10,11 +10,6 @@ lisboa.europe ansible_host=192.168.20.91 node_type=worker
 madrid.europe ansible_host=192.168.20.92 node_type=worker
 amsterdam.europe ansible_host=192.168.20.93 node_type=worker
 
-[k8s_worker_nodes]
-lisboa.europe ansible_host=192.168.20.91
-madrid.europe ansible_host=192.168.20.92
-amsterdam.europe ansible_host=192.168.20.93
-
 [k8s_kubeadmin]
 paris.europe ansible_host=192.168.20.52
 

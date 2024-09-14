@@ -1,7 +1,14 @@
 ---
 
 - include_tasks: "install-common.yml"
-- include_tasks: "install-cri.yml"
+- include_tasks: "install-repo.yml"
+
+- include_tasks: "install-cri-o.yml"
+  when: k8s.cri.vendor == "cri-o"
+
+- include_tasks: "install-containerd.yml"
+  when: k8s.cri.vendor == "containerd"
+
 - include_tasks: "install-k8s.yml"
 
 - include_tasks: "install-init.yml"
@@ -13,7 +20,7 @@
 - include_tasks: "install-master-node-multi.yml"
   when: node_type == "multi-master" 
 
-- include_tasks: "join.yml"
+- include_tasks: "install-join.yml"
   when: node_type == "join-master" 
 
 - include_tasks: "install-worker-node.yml"

@@ -1,0 +1,37 @@
+---
+
+- name: add apt cri-o source list
+  shell: |
+    CRIO_VERSION={{ k8s.cri.crio.version }}
+    curl -fsSL https://pkgs.k8s.io/addons:/cri-o:/stable:/$CRIO_VERSION/deb/Release.key | gpg --yes --dearmor -o /etc/apt/keyrings/cri-o-apt-keyring.gpg
+    echo "deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.gpg] https://pkgs.k8s.io/addons:/cri-o:/stable:/$CRIO_VERSION/deb/ /" | tee /etc/apt/sources.list.d/cri-o.list
+  when: ansible_facts['os_family'] == "Debian" and k8s.cri.vendor == "cri-o"
+
+- name: add apt docker source list
+  shell: |
+    install -m 0755 -d /etc/apt/keyrings
+    curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+    chmod a+r /etc/apt/keyrings/docker.asc
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  when: ansible_facts['os_family'] == "Debian" and k8s.cri.vendor == "containerd"
+
+- name: add google cloud apt signing key
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg 
+    state: present
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: add apt kubernetes source list
+  shell: | 
+    curl -fsSL https://pkgs.k8s.io/core:/stable:/{{ k8s.apt.version }}/deb/Release.key | sudo gpg --yes --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    sudo chmod 644 /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/{{ k8s.apt.version }}/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+    sudo chmod 644 /etc/apt/sources.list.d/kubernetes.list
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: apt update
+  apt:
+    update_cache: yes
+  when: ansible_facts['os_family'] == "Debian"
+
+
