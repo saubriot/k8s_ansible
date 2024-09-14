@@ -50,26 +50,9 @@
     - ethtool    
   when: ansible_facts['os_family'] == "Debian"
 
-- name: Remove "network-manager" package
+- name: Remove network-manager package
   apt:
     name: network-manager
     state: absent
-
-- name: create file /etc/sysctl.d/90-kubelet.conf
-  copy:
-    content: |
-      vm.overcommit_memory=1
-      vm.panic_on_oom=0
-      kernel.panic=10
-      kernel.panic_on_oops=1
-      kernel.keys.root_maxbytes=25000000
-    dest: /etc/sysctl.d/90-kubelet.conf
-
-- name: sysctl -p /etc/sysctl.d/90-kubelet.conf
-  shell: |
-    sysctl -p /etc/sysctl.d/90-kubelet.conf
-
-- name: systemctl enable --now iscsid
-  shell: |
-    systemctl enable --now iscsid
+  when: ansible_facts['os_family'] == "Debian"
 

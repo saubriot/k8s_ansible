@@ -1,6 +1,6 @@
 ---
 
-- name: remove other cri packages "docker-engine docker.io runc containerd.io cri-o cri-o-runc"
+- name: remove other cri packages
   apt:
     pkg:
     - docker-engine
@@ -23,7 +23,7 @@
     sudo modprobe overlay
     sudo modprobe br_netfilter
 
-- name: install the package containerd.io
+- name: install containerd.io package
   apt:
     pkg:
     - containerd.io

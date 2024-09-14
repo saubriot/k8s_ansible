@@ -11,6 +11,7 @@
 
 - name: kubeadm join node
   shell: "{{ kubeadm_join_node_result.stdout }} > /var/log/kubeadm_join.log"
+  ignore_errors: yes
   become: true
 
 - name: create openebs storage class hostpath

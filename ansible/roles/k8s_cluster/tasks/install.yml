@@ -20,8 +20,14 @@
 - include_tasks: "install-master-node-multi.yml"
   when: node_type == "multi-master" 
 
-- include_tasks: "install-join.yml"
+- include_tasks: "install-join-master-node-token.yml"
+  when: node_type == "multi-master" 
+
+- include_tasks: "install-join-master-node.yml"
   when: node_type == "join-master" 
+
+- include_tasks: "install-join-worker-node-token.yml"
+  when: node_type == "single-master" or node_type == "multi-master"
 
 - include_tasks: "install-worker-node.yml"
   when: node_type == "worker" 

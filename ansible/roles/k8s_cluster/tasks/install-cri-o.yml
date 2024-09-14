@@ -1,6 +1,6 @@
 ---
 
-- name: remove other cri packages "docker-engine docker.io containerd runc containerd.io"
+- name: remove other cri packages
   apt:
     pkg:
     - docker-engine 
@@ -11,7 +11,7 @@
     state: absent
   when: ansible_facts['os_family'] == "Debian"
 
-- name: install packages "cri-o"
+- name: install cri-o package
   apt:
     pkg:
     - cri-o

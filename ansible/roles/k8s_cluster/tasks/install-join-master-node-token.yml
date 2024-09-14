@@ -1,0 +1,21 @@
+---
+
+- name: kubeadm create join command
+  shell: kubeadm token create --print-join-command
+  register: kubeadm_join_master_result
+
+- name: get kubadm join certificate-key
+  shell: |
+    kubeadm init phase upload-certs --upload-certs --config /var/log/kubeadm_init_config.yaml|tail -1
+  register: kubeadm_join_certificate_key_result
+
+- name: store kubeadm join command for master
+  copy:
+    content: "{{ kubeadm_join_master_result.stdout }} --control-plane --certificate-key {{ kubeadm_join_certificate_key_result.stdout }}"
+    dest: "/var/log/k8s_join_master_file_{{ all.environment }}"
+
+- name: fetch kubeadm join command for master
+  fetch:
+    src: "/var/log/k8s_join_master_file_{{ all.environment }}"
+    dest: "{{ all.fetch_directory }}/"
+    flat: yes
