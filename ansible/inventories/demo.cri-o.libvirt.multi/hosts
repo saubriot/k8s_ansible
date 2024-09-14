@@ -6,7 +6,7 @@ paris.europe ansible_host=192.168.20.52 create_certs=True synch_certs=False
 berlin.europe ansible_host=192.168.20.55 create_certs=False synch_certs=True
 roma.europe ansible_host=192.168.20.67 create_certs=False synch_certs=True
 
-[k8s_nodes]
+[k8s_cluster]
 paris.europe ansible_host=192.168.20.52 node_type=multi-master
 berlin.europe ansible_host=192.168.20.55 node_type=join-master
 roma.europe ansible_host=192.168.20.67 node_type=join-master

@@ -1,21 +1,5 @@
 ---
 
-#- name: add apt bookworm-backports source list
-#  shell: echo 'deb http://deb.debian.org/debian bookworm-backports main' > /etc/apt/sources.list.d/backports.list
-
-#- name: apt update
-#  apt:
-#    update_cache: yes
-#  when: ansible_facts['os_family'] == "Debian"
-
-#- name: install package libseccomp2
-#  apt:
-#    name: libseccomp2
-#    default_release: bookworm-backports
-#    update_cache: yes
-#    state: latest
-#  when: ansible_facts['os_family'] == "Debian"
-
 - name: add apt cri-o source list
   shell: |
     CRIO_VERSION={{ k8s.cri.crio.version }}
