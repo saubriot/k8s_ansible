@@ -1,0 +1,16 @@
+---
+
+#
+# see https://github.com/weaveworks/weave/blob/master/site/kubernetes/kube-addon.md#install
+#
+- name: install CNI "weave"
+  shell: |
+    kubectl apply -f https://github.com/weaveworks/weave/releases/download/{{ k8s.core.cni.weave.version }}/weave-daemonset-k8s.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: install CNI "weave" - wait for
+  shell: |
+    kubectl rollout status ds/weave-net --namespace kube-system --timeout=360s
+  become: true
+  become_user: kubeadmin

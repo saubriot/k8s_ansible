@@ -31,3 +31,15 @@
 
 - include_tasks: "install-worker-node.yml"
   when: node_type == "worker" 
+
+- include_tasks: "install-cni-calico.yml"
+  when: kubeadmin is defined and k8s.core.cni.vendor == "calico"
+
+- include_tasks: "install-cni-flannel.yml"
+  when: kubeadmin is defined and k8s.core.cni.vendor == "flannel"
+
+- include_tasks: "install-cni-weave.yml"
+  when: kubeadmin is defined and k8s.core.cni.vendor == "weave"
+
+- include_tasks: "install-cni-cilium.yml"
+  when: kubeadmin is defined and k8s.core.cni.vendor == "cilium"
