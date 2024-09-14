@@ -1,10 +1,22 @@
 ---
 # file: roles/k8s_admin/tasks/install-etcd.yml
     
-- name: install the package "etcd"
-  apt:
-    pkg: 
-    - etcd
+- name: install etcd
+  shell: |
+    ETCD_VER=v3.5.16
+    GOOGLE_URL=https://storage.googleapis.com/etcd
+    DOWNLOAD_URL=${GOOGLE_URL}
+    rm -f /tmp/etcd-${ETCD_VER}-linux-amd64.tar.gz
+    rm -rf /tmp/etcd-download-test && mkdir -p /tmp/etcd-download-test
+    curl -L ${DOWNLOAD_URL}/${ETCD_VER}/etcd-${ETCD_VER}-linux-amd64.tar.gz -o /tmp/etcd-${ETCD_VER}-linux-amd64.tar.gz
+    tar xzvf /tmp/etcd-${ETCD_VER}-linux-amd64.tar.gz -C /tmp/etcd-download-test --strip-components=1
+    rm -f /tmp/etcd-${ETCD_VER}-linux-amd64.tar.gz
+    /tmp/etcd-download-test/etcd --version
+    /tmp/etcd-download-test/etcdctl version
+    /tmp/etcd-download-test/etcdutl version
+    cp /tmp/etcd-download-test/etcd /usr/bin
+    cp /tmp/etcd-download-test/etcdctl /usr/bin
+    cp /tmp/etcd-download-test/etcdutl /usr/bin
 
 - name: remove /etc/etcd if exists
   file:

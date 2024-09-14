@@ -5,7 +5,7 @@ all:
 
 k8s:
   apt:
-    version: 1.27.1-00
+    version: v1.31
   cluster:
     configuration: 
       etcd: |
@@ -20,8 +20,7 @@ k8s:
     vendor: cri-o
     criSocket: unix:///var/run/crio/crio.sock
     crio:
-      os: Debian_11
-      version: 1.25
+      version: v1.30
   master:
     pod_network_cidr: 10.244.0.0/16   
     kubeadm_extra: "--v=99"

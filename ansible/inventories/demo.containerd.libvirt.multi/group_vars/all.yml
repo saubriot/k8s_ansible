@@ -5,7 +5,7 @@ all:
 
 k8s:
   apt:
-    version: 1.27.1-00
+    version: v1.31
   cluster:
     configuration: 
       etcd: |
@@ -17,8 +17,13 @@ k8s:
               - https://192.168.20.67:2379
             caFile: /etc/etcd/ca.pem
             certFile: /etc/etcd/etcd.pem
-            keyFile: /etc/etcd/etcd-key.pem        
-
+            keyFile: /etc/etcd/etcd-key.pem
+  registry:
+    external: True
+    name: flowers.registry
+    login: flowers
+    password: PssPss2023
+    address: 192.168.20.141 
   cri:
     vendor: containerd
     criSocket: unix:///var/run/containerd/containerd.sock

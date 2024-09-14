@@ -1,7 +1,5 @@
 ---
-# file: k8s_admin.yml
 - hosts: k8s_etcd
   become: true
   roles:
-    - common
     - k8s_etcd

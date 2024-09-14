@@ -1,0 +1,29 @@
+---
+    
+    - name: install the package "haproxy"
+      apt:
+        pkg: 
+        - haproxy
+    
+    - name: rm file /etc/haproxy/haproxy.cfg
+      file:
+        path: /etc/haproxy/haproxy.cfg
+        state: absent
+    
+    - name: create file /etc/haproxy/haproxy.cfg
+      copy:
+        dest: /etc/haproxy/haproxy.cfg
+        content: |
+          {{ haproxy.conf }}
+    
+    - name: restart service haproxy
+      service:
+        name: haproxy
+        state: restarted
+
+    - name: configure iptables for haproxy
+      shell: |
+        # allow connection
+        iptables -A INPUT -i {{ haproxy.iface }} -m state --state NEW -p tcp --dport {{ haproxy.iptables.port }} -j ACCEPT
+        # save firewall rules (will be run automatically run at boot with iptables-persistent package)
+        iptables-save > /etc/iptables/rules.v4

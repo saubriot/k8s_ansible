@@ -1,0 +1,57 @@
+---
+
+#- name: add apt bookworm-backports source list
+#  shell: echo 'deb http://deb.debian.org/debian bookworm-backports main' > /etc/apt/sources.list.d/backports.list
+
+#- name: apt update
+#  apt:
+#    update_cache: yes
+#  when: ansible_facts['os_family'] == "Debian"
+
+#- name: install package libseccomp2
+#  apt:
+#    name: libseccomp2
+#    default_release: bookworm-backports
+#    update_cache: yes
+#    state: latest
+#  when: ansible_facts['os_family'] == "Debian"
+
+- name: add apt cri-o source list
+  shell: |
+    CRIO_VERSION={{ k8s.cri.crio.version }}
+    curl -fsSL https://pkgs.k8s.io/addons:/cri-o:/stable:/$CRIO_VERSION/deb/Release.key | gpg --yes --dearmor -o /etc/apt/keyrings/cri-o-apt-keyring.gpg
+    echo "deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.gpg] https://pkgs.k8s.io/addons:/cri-o:/stable:/$CRIO_VERSION/deb/ /" | tee /etc/apt/sources.list.d/cri-o.list
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: apt update
+  apt:
+    update_cache: yes
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: remove other cri packages "docker-engine docker.io containerd runc containerd.io"
+  apt:
+    pkg:
+    - docker-engine 
+    - docker.io 
+    - containerd 
+    - runc
+    - containerd.io
+    state: absent
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: install packages "cri-o"
+  apt:
+    pkg:
+    - cri-o
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: enable service crio
+  service:
+    name: crio
+    enabled: yes
+
+- name: restart service crio
+  service:
+    name: crio
+    state: restarted
+   

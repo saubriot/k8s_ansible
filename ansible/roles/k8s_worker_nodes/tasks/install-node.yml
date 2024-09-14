@@ -1,0 +1,23 @@
+---
+# file: roles/k8s_nodes/tasks/main.yml
+
+- name: store kubeadm join command for node
+  copy:
+    src: "{{ all.fetch_directory }}/k8s_join_node_file_{{ all.environment }}"
+    dest: "/var/log/k8s_join_node_file_{{ all.environment }}"
+
+- name: get kubadm join command for node
+  shell: "cat /var/log/k8s_join_node_file_{{ all.environment }}"
+  register: kubeadm_join_node_result
+
+- name: kubeadm join node
+  shell: "{{ kubeadm_join_node_result.stdout }} > /var/log/kubeadm_join.log"
+  become: true
+
+- name: create openebs storage class hostpath
+  file:
+    path: "{{ k8s.openebs.storageclass.hostpath }}"
+    state: directory
+    mode: '0755'
+
+  

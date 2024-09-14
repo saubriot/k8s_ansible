@@ -1,0 +1,4 @@
+---
+
+- include_tasks: "install-common.yml"
+- include_tasks: "install-haproxy.yml"

@@ -1,5 +1,4 @@
 ---
-# file: roles/k8s_master_nodes/tasks/single.yml
 
 - name: create file /var/log/kubeadm_init_config.yaml
   copy:
@@ -15,7 +14,6 @@
       ---
       apiVersion: kubeadm.k8s.io/v1beta3
       kind: ClusterConfiguration
-      kubernetesVersion: v1.27.1
       controlPlaneEndpoint: "{{ k8s.master.load_balancer_ip }}:{{ k8s.master.apiserver_port }}"
       networking:
         podSubnet: "{{ k8s.master.pod_network_cidr }}"      
@@ -23,9 +21,9 @@
 
     dest: /var/log/kubeadm_init_config.yaml
 
-- name: kubeadm init single master
+- name: kubeadm init multi master
   shell: |
-    kubeadm init --config /var/log/kubeadm_init_config.yaml --upload-certs {{ k8s.master.kubeadm_extra }} --skip-phases=addon/kube-proxy > /var/log/kubeadm_init.log
+    kubeadm init --config /var/log/kubeadm_init_config.yaml --upload-certs {{ k8s.master.kubeadm_extra }} > /var/log/kubeadm_init.log
     mkdir -p /home/kubeadmin/.kube
     cp -f /etc/kubernetes/admin.conf /home/kubeadmin/.kube/config
     chmod -R 0755 /home/kubeadmin/.kube
@@ -35,9 +33,9 @@
   shell: |
     bash -c 'for i in {1..60}; do sleep 1; if [ $(curl -o /dev/null -s -w "%{http_code}\n" -k https://{{ ansible_host }}:{{ k8s.master.apiserver_port }}/healthz) -ne 200 ]; then echo -ne x; else break; fi; done'
 
-- name: kubeadm init single master - phase addon kube-proxy 
-  shell: |
-    kubeadm init phase addon kube-proxy --control-plane-endpoint="{{ ansible_host }}:{{ k8s.master.apiserver_port }}" --pod-network-cidr="{{ k8s.master.pod_network_cidr }}" >> /var/log/kubeadm_init.log
+- name: get kubadm join command for master node
+  shell: grep -E "kubeadm join|--discovery|--control-plane" /var/log/kubeadm_init.log | head -n 3
+  register: kubeadm_join_master_result
 
 - name: get kubadm join command for node
   shell: grep -E "kubeadm join|--discovery" /var/log/kubeadm_init.log | tail -2
@@ -48,9 +46,19 @@
     content: "{{ kubeadm_join_node_result.stdout }}"
     dest: "/var/log/k8s_join_node_file_{{ all.environment }}"
 
+- name: store kubeadm join command for master
+  copy:
+    content: "{{ kubeadm_join_master_result.stdout }}"
+    dest: "/var/log/k8s_join_master_file_{{ all.environment }}"
+
 - name: fetch kubeadm join command for node
   fetch:
     src: "/var/log/k8s_join_node_file_{{ all.environment }}"
     dest: "{{ all.fetch_directory }}/"
     flat: yes
 
+- name: fetch kubeadm join command for master
+  fetch:
+    src: "/var/log/k8s_join_master_file_{{ all.environment }}"
+    dest: "{{ all.fetch_directory }}/"
+    flat: yes

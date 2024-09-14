@@ -1,0 +1,6 @@
+---
+
+- include_tasks: "install-common.yml"
+- include_tasks: "install-cri.yml"
+- include_tasks: "install-k8s.yml"
+- include_tasks: "install-node.yml"

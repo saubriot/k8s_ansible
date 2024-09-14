@@ -1,23 +1,20 @@
 ---
-# file: roles/k8s_nodes/tasks/main.yml
 
-- name: store kubeadm join command for node
-  copy:
-    src: "{{ all.fetch_directory }}/k8s_join_node_file_{{ all.environment }}"
-    dest: "/var/log/k8s_join_node_file_{{ all.environment }}"
+- include_tasks: "install-common.yml"
+- include_tasks: "install-cri.yml"
+- include_tasks: "install-k8s.yml"
 
-- name: get kubadm join command for node
-  shell: "cat /var/log/k8s_join_node_file_{{ all.environment }}"
-  register: kubeadm_join_node_result
+- include_tasks: "install-init.yml"
+  when: node_type == "single-master" or node_type == "multi-master" or node_type == "join-master"
 
-- name: kubeadm join node
-  shell: "{{ kubeadm_join_node_result.stdout }} > /var/log/kubeadm_join.log"
-  become: true
+- include_tasks: "install-master-node-single.yml"
+  when: node_type == "single-master" 
 
-- name: create openebs storage class hostpath
-  file:
-    path: "{{ k8s.openebs.storageclass.hostpath }}"
-    state: directory
-    mode: '0755'
+- include_tasks: "install-master-node-multi.yml"
+  when: node_type == "multi-master" 
 
-  
+- include_tasks: "join.yml"
+  when: node_type == "join-master" 
+
+- include_tasks: "install-worker-node.yml"
+  when: node_type == "worker" 

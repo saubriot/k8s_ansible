@@ -1,0 +1,16 @@
+---
+
+- hosts: k8s_etcd
+  become: true
+  roles:
+    - k8s_etcd
+
+- hosts: k8s_haproxy
+  become: true
+  roles:
+    - k8s_haproxy
+
+- hosts: k8s_nodes
+  become: true
+  roles:
+    - k8s_nodes
