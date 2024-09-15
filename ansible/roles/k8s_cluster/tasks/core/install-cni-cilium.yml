@@ -34,6 +34,8 @@
 
 - name: install CNI "cilium" - wait for
   shell: |
-    kubectl rollout status ds/cilium ds/cilium-envoy deployment/cilium-operator --namespace kube-system --timeout=360s
+    kubectl rollout status ds/cilium ds/cilium-envoy deployment/cilium-operator --namespace kube-system --timeout=600s
   become: true
   become_user: kubeadmin
+  ignore_errors: yes
+

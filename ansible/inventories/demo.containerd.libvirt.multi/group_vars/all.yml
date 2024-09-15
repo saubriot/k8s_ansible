@@ -39,9 +39,8 @@ k8s:
     untaint_master_nodes:
       - lisboa.europe
 
-  openebs:
-    storageclass:
-      hostpath: /data_storage/openebs
+  cns:
+    hostpath: /data_storage/cns
 
   coredns:
     namespace: coredns-europe
@@ -71,13 +70,13 @@ k8s:
 
     metallb:
       ip_range: "192.168.20.180-192.168.20.189"
-      version: v0.13.9
+      version: v0.14.8
     
     nginx:
-      version: v1.7.1
+      version: v1.11.2
 
     cert_manager:
-      version: v1.11.0
+      version: v1.15.3
       namespace: cert-manager
       ca:
         cn: "k8s europe CA"

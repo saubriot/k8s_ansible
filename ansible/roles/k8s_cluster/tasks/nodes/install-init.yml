@@ -17,8 +17,8 @@
     groups: ansible_common_remote_group
     append: yes
 
-- name: create openebs storage class hostpath
+- name: create CNS hostpath
   file:
-    path: "{{ k8s.openebs.storageclass.hostpath }}"
+    path: "{{ k8s.cns.hostpath }}"
     state: directory
     mode: '0755'    

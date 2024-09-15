@@ -1,0 +1,11 @@
+---
+# file: roles/k8s_core/tasks/check-certs.yml
+
+- name: Fetch certificate
+  fetch:
+    flat: yes
+    src: /home/kubeadmin/cert-manager/ca.crt
+    dest: "{{ all.fetch_directory }}/k8s-ca-{{ all.environment }}.crt"
+  become: true
+  become_user: kubeadmin
+

@@ -1,0 +1,12 @@
+---
+
+- include_tasks: "os/install-common.yml"
+- include_tasks: "os/install-repo.yml"
+
+- include_tasks: "os/install-cri-o.yml"
+  when: k8s.cri.vendor == "cri-o"
+
+- include_tasks: "os/install-containerd.yml"
+  when: k8s.cri.vendor == "containerd"
+
+- include_tasks: "os/install-k8s.yml"

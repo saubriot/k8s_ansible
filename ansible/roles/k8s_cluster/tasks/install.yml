@@ -1,45 +1,6 @@
 ---
 
-- include_tasks: "install-common.yml"
-- include_tasks: "install-repo.yml"
-
-- include_tasks: "install-cri-o.yml"
-  when: k8s.cri.vendor == "cri-o"
-
-- include_tasks: "install-containerd.yml"
-  when: k8s.cri.vendor == "containerd"
-
-- include_tasks: "install-k8s.yml"
-
-- include_tasks: "install-init.yml"
-  when: node_type == "single-master" or node_type == "multi-master" or node_type == "join-master"
-
-- include_tasks: "install-master-node-single.yml"
-  when: node_type == "single-master" 
-
-- include_tasks: "install-master-node-multi.yml"
-  when: node_type == "multi-master" 
-
-- include_tasks: "install-join-master-node-token.yml"
-  when: node_type == "multi-master" 
-
-- include_tasks: "install-join-master-node.yml"
-  when: node_type == "join-master" 
-
-- include_tasks: "install-join-worker-node-token.yml"
-  when: node_type == "single-master" or node_type == "multi-master"
-
-- include_tasks: "install-worker-node.yml"
-  when: node_type == "worker" 
-
-- include_tasks: "install-cni-calico.yml"
-  when: kubeadmin is defined and k8s.core.cni.vendor == "calico"
-
-- include_tasks: "install-cni-flannel.yml"
-  when: kubeadmin is defined and k8s.core.cni.vendor == "flannel"
-
-- include_tasks: "install-cni-weave.yml"
-  when: kubeadmin is defined and k8s.core.cni.vendor == "weave"
-
-- include_tasks: "install-cni-cilium.yml"
-  when: kubeadmin is defined and k8s.core.cni.vendor == "cilium"
+- include_tasks: "os/install.yml"
+- include_tasks: "nodes/install.yml"
+- include_tasks: "core/install.yml"
+- include_tasks: "core/check.yml"

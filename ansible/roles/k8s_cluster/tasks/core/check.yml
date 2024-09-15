@@ -1,0 +1,7 @@
+---
+
+- include_tasks: "core/check-certs.yml"
+  when: kubeadmin is defined 
+
+- include_tasks: "core/check-dashboard.yml"
+  when: kubeadmin is defined 

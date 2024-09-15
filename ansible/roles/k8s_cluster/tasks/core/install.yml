@@ -1,0 +1,28 @@
+---
+
+- include_tasks: "core/install-cni-calico.yml"
+  when: kubeadmin is defined and k8s.core.cni.vendor == "calico"
+
+- include_tasks: "core/install-cni-flannel.yml"
+  when: kubeadmin is defined and k8s.core.cni.vendor == "flannel"
+
+- include_tasks: "core/install-cni-weave.yml"
+  when: kubeadmin is defined and k8s.core.cni.vendor == "weave"
+
+- include_tasks: "core/install-cni-cilium.yml"
+  when: kubeadmin is defined and k8s.core.cni.vendor == "cilium"
+
+- include_tasks: "core/install-metallb.yml"
+  when: kubeadmin is defined 
+
+- include_tasks: "core/install-nginx.yml"
+  when: kubeadmin is defined 
+
+- include_tasks: "core/install-cert-manager.yml"
+  when: kubeadmin is defined 
+
+- include_tasks: "core/install-dashboard.yml"
+  when: kubeadmin is defined 
+
+- include_tasks: "core/install-cns-openebs.yml"
+  when: kubeadmin is defined 

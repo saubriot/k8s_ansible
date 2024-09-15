@@ -1,0 +1,147 @@
+---
+# see https://github.com/kubernetes/dashboard
+
+- name: install package helm
+  apt:
+    pkg: helm
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: install dashbaord - kubernetes dashboard
+  shell: |
+    # Add kubernetes-dashboard repository
+    helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
+    # Deploy a Helm Release named "kubernetes-dashboard" using the kubernetes-dashboard chart
+    helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --create-namespace --namespace kubernetes-dashboard
+  become: true
+  become_user: kubeadmin
+
+- name: create directory /home/kubeadmin/dashboard
+  file:
+    path: /home/kubeadmin/dashboard
+    state: directory
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/dashboard/admin-user.yaml
+  copy:
+    content: |
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: admin-user
+        namespace: kube-system
+      ---
+      apiVersion: v1
+      kind: Secret
+      type: kubernetes.io/service-account-token
+      metadata:
+        name: admin-user
+        namespace: kube-system
+        annotations:
+          kubernetes.io/service-account.name: "admin-user"
+    dest: /home/kubeadmin/dashboard/admin-user.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: create admin user
+  shell: kubectl apply -f /home/kubeadmin/dashboard/admin-user.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/dashboard/admin-user-rbac.yaml
+  copy:
+    content: |
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRoleBinding
+      metadata:
+        name: admin-user
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
+        kind: ClusterRole
+        name: cluster-admin
+      subjects:
+      - kind: ServiceAccount
+        name: admin-user
+        namespace: kube-system
+    dest: /home/kubeadmin/dashboard/admin-user-rbac.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: create admin user rbac
+  shell: kubectl apply -f /home/kubeadmin/dashboard/admin-user-rbac.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/dashboard/cert-manager-dashboard.yaml
+  copy:
+    content: |
+      apiVersion: cert-manager.io/v1
+      kind: Certificate
+      metadata:
+        name: dashboard
+        namespace: kubernetes-dashboard
+      spec:
+        secretName: dashboard-tls
+        duration: {{ k8s.core.cert_manager.ca.expiry }}
+        renewBefore: {{ k8s.core.cert_manager.ca.renewBefore }}
+        subject:
+          organizations:
+          - flowers
+        commonName: {{ k8s.core.dashboard.host }}
+        isCA: false
+        privateKey:
+          algorithm: RSA
+          encoding: PKCS1
+          size: 4096
+        usages:
+          - server auth
+          - client auth
+        dnsNames:
+        - {{ k8s.core.dashboard.host }}
+        issuerRef:
+          kind: ClusterIssuer
+          name: ca-issuer
+          group: cert-manager.io
+    dest: /home/kubeadmin/dashboard/cert-manager-dashboard.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: apply cert-manager dashboard certificate
+  shell: kubectl apply -f /home/kubeadmin/dashboard/cert-manager-dashboard.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/dashboard/k8s-dashboard-nginx.yaml
+  copy:
+    content: |
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: k8s-dashboard-nginx
+        namespace: kubernetes-dashboard
+        annotations:
+          kubernetes.io/ingress.class: nginx
+          nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+          nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+      spec:
+        tls:
+        - secretName: dashboard-tls
+        rules:
+        - host: {{ k8s.core.dashboard.host }}
+          http:
+            paths:
+            - path: /
+              pathType: Prefix
+              backend:
+                service:
+                  name: kubernetes-dashboard-kong-proxy
+                  port: 
+                    number: 443
+    dest: /home/kubeadmin/dashboard/k8s-dashboard-nginx.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: apply dashboard nginx ingress
+  shell: kubectl apply -f /home/kubeadmin/dashboard/k8s-dashboard-nginx.yaml
+  become: true
+  become_user: kubeadmin
