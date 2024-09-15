@@ -13,6 +13,23 @@
   become: true
   become_user: kubeadmin
 
+- name: create file /home/kubeadmin/dashboard/override-values.yaml
+  copy:
+    content: |
+      kong:
+        env:
+          dns_order: AAAA,A,CNAME,LAST,SRV
+    dest: /home/kubeadmin/dashboard/override-values.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: install dashboard - kubernetes dashboard
+  shell: |
+    helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
+    helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --values /home/kubeadmin/dashboard/override-values.yaml --create-namespace --namespace kubernetes-dashboard
+  become: true
+  become_user: kubeadmin
+
 - name: create file /home/kubeadmin/dashboard/admin-user.yaml
   copy:
     content: |
@@ -102,52 +119,6 @@
   become: true
   become_user: kubeadmin
 
-
-
-
-
-
-
-- name: create file /home/kubeadmin/dashboard/override-values.yaml
-  copy:
-    content: |
-      app:
-        ingress:
-          enabled: true
-          hosts:
-            - {{ k8s.core.dashboard.host }}
-          ingressClassName: nginx
-          useDefaultIngressClass: false
-          useDefaultAnnotations: true
-          pathType: ImplementationSpecific
-          path: /
-          issuer:
-            name: selfsigned
-            scope: disabled
-          tls:
-            secretName: "dashboard-tls"
-      metrics-server:
-        enabled: true
-        args:
-          - --kubelet-preferred-address-types=InternalIP
-          - --kubelet-insecure-tls
-
-    dest: /home/kubeadmin/dashboard/override-values.yaml
-  become: true
-  become_user: kubeadmin
-
-- name: install dashbaord - kubernetes dashboard
-  shell: |
-    helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
-    helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --values /home/kubeadmin/dashboard/override-values.yaml  --create-namespace --namespace kubernetes-dashboard
-  become: true
-  become_user: kubeadmin
-
-
-
-
-
-
 - name: create file /home/kubeadmin/dashboard/k8s-dashboard-nginx.yaml
   copy:
     content: |
@@ -178,7 +149,7 @@
   become: true
   become_user: kubeadmin
 
-#- name: apply dashboard nginx ingress
-#  shell: kubectl apply -f /home/kubeadmin/dashboard/k8s-dashboard-nginx.yaml
-#  become: true
-#  become_user: kubeadmin
+- name: apply dashboard nginx ingress
+  shell: kubectl apply -f /home/kubeadmin/dashboard/k8s-dashboard-nginx.yaml
+  become: true
+  become_user: kubeadmin

@@ -1,5 +1,4 @@
 ---
-# file: roles/k8s_add_nodes/tasks/main.yml
 
 - name: store kubeadm join command for node
   copy:

@@ -28,6 +28,7 @@
     cp -f /etc/kubernetes/admin.conf /home/kubeadmin/.kube/config
     chmod -R 0755 /home/kubeadmin/.kube
     chown -R kubeadmin:kubeadmin /home/kubeadmin
+    chmod 700 /home/kubeadmin/.kube/config
 
 - name: check if Kubernetes API server is available and returning status 200
   shell: |
