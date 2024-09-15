@@ -1,0 +1,26 @@
+---
+
+- name: kubeadm reset -f
+  shell: kubeadm reset -f
+  tags: reset
+  when: reset
+  ignore_errors: true  
+
+- name: remove cns hostpath if exists
+  file:
+    path: "{{ k8s.cns.hostpath }}"
+    state: absent
+  when: reset
+  ignore_errors: true  
+
+- name: remove /etc/cni/net.d if exists
+  file:
+    path: /etc/cni/net.d
+    state: absent
+  when: reset
+  ignore_errors: true  
+
+- name: reboot the host
+  reboot:
+  when: reset
+  ignore_errors: true  

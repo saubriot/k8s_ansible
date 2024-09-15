@@ -6,6 +6,8 @@ paris.europe ansible_host=192.168.20.52 create_certs=True synch_certs=False
 
 [k8s_cluster]
 paris.europe ansible_host=192.168.20.52 node_type=single-master kubeadmin=True
+berlin.europe ansible_host=192.168.20.55 node_type=worker
+roma.europe ansible_host=192.168.20.67 node_type=worker
 lisboa.europe ansible_host=192.168.20.91 node_type=worker
 madrid.europe ansible_host=192.168.20.92 node_type=worker
 amsterdam.europe ansible_host=192.168.20.93 node_type=worker

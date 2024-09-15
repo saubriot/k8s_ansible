@@ -1,9 +1,5 @@
+---
 
-# operation (install or delete) and task to run
-#
-# use --extra-vars="operation=install task=all" when running ansible-playbook
-#
+component: all
 
-operation: install
-task: all
-
+install_haproxy: True

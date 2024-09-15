@@ -1,28 +1,28 @@
 ---
 
 - include_tasks: "core/install-cni-calico.yml"
-  when: kubeadmin is defined and k8s.core.cni.vendor == "calico"
+  when: kubeadmin is defined and k8s.core.cni.vendor == "calico" and (component == "all" or component == "cni")
 
 - include_tasks: "core/install-cni-flannel.yml"
-  when: kubeadmin is defined and k8s.core.cni.vendor == "flannel"
+  when: kubeadmin is defined and k8s.core.cni.vendor == "flannel" and (component == "all" or component == "cni")
 
 - include_tasks: "core/install-cni-weave.yml"
-  when: kubeadmin is defined and k8s.core.cni.vendor == "weave"
+  when: kubeadmin is defined and k8s.core.cni.vendor == "weave" and (component == "all" or component == "cni")
 
 - include_tasks: "core/install-cni-cilium.yml"
-  when: kubeadmin is defined and k8s.core.cni.vendor == "cilium"
+  when: kubeadmin is defined and k8s.core.cni.vendor == "cilium" and (component == "all" or component == "cni")
 
 - include_tasks: "core/install-metallb.yml"
-  when: kubeadmin is defined 
+  when: kubeadmin is defined and (component == "all" or component == "metallb")
 
 - include_tasks: "core/install-nginx.yml"
-  when: kubeadmin is defined 
+  when: kubeadmin is defined and (component == "all" or component == "nginx")
 
 - include_tasks: "core/install-cert-manager.yml"
-  when: kubeadmin is defined 
+  when: kubeadmin is defined and (component == "all" or component == "cert-manager")
 
 - include_tasks: "core/install-dashboard.yml"
-  when: kubeadmin is defined 
+  when: kubeadmin is defined and (component == "all" or component == "dashboard")
 
 - include_tasks: "core/install-cns-openebs.yml"
-  when: kubeadmin is defined 
+  when: kubeadmin is defined and (component == "all" or component == "cns")

@@ -1,5 +1,6 @@
 ---
-  
+
   - include_tasks: "install.yml"
-    when: operation == "install"
+    when: install_haproxy | bool
+
   

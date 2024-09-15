@@ -1,7 +1,10 @@
-# operation (install or delete) and task to run
-#
-# use --extra-vars="operation=install task=all" when running ansible-playbook
-#
+---
 
-operation: install
-task: all
+component: all
+
+install_k8s : True
+install_k8s_os : True
+install_k8s_nodes: True
+install_k8s_core: True
+
+reset_k8s_cluster : False

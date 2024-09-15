@@ -1,0 +1,4 @@
+---
+
+- include_tasks: "nodes/reset-cluster.yml"
+  when: reset_k8s_cluster | bool

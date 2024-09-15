@@ -49,7 +49,7 @@ k8s:
 
   core:
     cni: 
-      vendor: cilium # calico, weave, flannel, cilium
+      vendor: weave # calico, weave, flannel, cilium
       cilium:
         version: 1.16.1
       calico:

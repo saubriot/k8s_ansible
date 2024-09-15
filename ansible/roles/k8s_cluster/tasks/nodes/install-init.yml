@@ -21,4 +21,6 @@
   file:
     path: "{{ k8s.cns.hostpath }}"
     state: directory
-    mode: '0755'    
+    mode: '0755'  
+  when: node_type == "worker" 
+  

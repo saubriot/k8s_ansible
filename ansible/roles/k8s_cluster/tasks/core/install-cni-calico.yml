@@ -24,6 +24,7 @@
     kubectl wait --namespace kube-system --for=condition=ready pod --selector=k8s-app=calico-node --timeout=360s
   become: true
   become_user: kubeadmin
+  ignore_errors: yes
 
 - name: install CNI "calicoctl" on kubernetes API datastore
   shell: |

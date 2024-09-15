@@ -1,6 +1,13 @@
 ---
 
 - include_tasks: "os/install.yml"
+  when: install_k8s_os | bool
+
 - include_tasks: "nodes/install.yml"
+  when: install_k8s_nodes | bool
+
 - include_tasks: "core/install.yml"
+  when: install_k8s_core | bool
+
 - include_tasks: "core/check.yml"
+  when: install_k8s_core | bool

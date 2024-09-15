@@ -14,4 +14,5 @@
     kubectl rollout status ds/kube-flannel-ds --namespace kube-flannel --timeout=360s
   become: true
   become_user: kubeadmin
+  ignore_errors: yes
 
