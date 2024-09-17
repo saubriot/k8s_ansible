@@ -1,11 +1,6 @@
 ---
 # see https://github.com/kubernetes/dashboard
 
-- name: install package helm
-  apt:
-    pkg: helm
-  when: ansible_facts['os_family'] == "Debian"
-
 - name: create directory /home/kubeadmin/dashboard
   file:
     path: /home/kubeadmin/dashboard
@@ -13,20 +8,10 @@
   become: true
   become_user: kubeadmin
 
-- name: create file /home/kubeadmin/dashboard/override-values.yaml
-  copy:
-    content: |
-      kong:
-        env:
-          dns_order: AAAA,A,CNAME,LAST,SRV
-    dest: /home/kubeadmin/dashboard/override-values.yaml
-  become: true
-  become_user: kubeadmin
-
 - name: install dashboard - kubernetes dashboard
   shell: |
     helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
-    helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --values /home/kubeadmin/dashboard/override-values.yaml --create-namespace --namespace kubernetes-dashboard
+    helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --create-namespace --namespace kubernetes-dashboard
   become: true
   become_user: kubeadmin
 

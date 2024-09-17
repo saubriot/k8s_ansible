@@ -1,4 +1,5 @@
 ---
+
 # see https://cert-manager.io/docs/installation/
 
 - name: install cert-manager
@@ -12,18 +13,21 @@
     kubectl wait --namespace cert-manager --for=condition=ready pod --selector=app=cert-manager --timeout=360s
   become: true
   become_user: kubeadmin
+  ignore_errors: yes
 
 - name: install cert-manager - wait for webhook
   shell: |
     kubectl wait --namespace cert-manager --for=condition=ready pod --selector=app=webhook --timeout=360s
   become: true
   become_user: kubeadmin
+  ignore_errors: yes
 
 - name: install cert-manager - wait for cainjector
   shell: |
     kubectl wait --namespace cert-manager --for=condition=ready pod --selector=app=cainjector --timeout=360s
   become: true
   become_user: kubeadmin
+  ignore_errors: yes
 
 - name: create directory /home/kubeadmin/cert-manager
   file:

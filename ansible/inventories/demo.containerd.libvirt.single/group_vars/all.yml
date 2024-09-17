@@ -17,11 +17,10 @@ k8s:
             certFile: /etc/etcd/etcd.pem
             keyFile: /etc/etcd/etcd-key.pem        
   cri:
-    vendor: containerd
+    vendor: containerd # cri-o, containerd
     criSocket: unix:///var/run/containerd/containerd.sock
     crio:
-      os: Debian_11
-      version: 1.25
+      version: v1.30
   master:
     pod_network_cidr: 10.244.0.0/16   
     kubeadm_extra: "--v=99"
@@ -83,7 +82,11 @@ k8s:
       csr_CN: dashboard.lv.k8s.europe
       host: dashboard.lv.k8s.europe
       version: v2.7.0
-      
+
+    grafana:
+      csr_CN: grafana.lv.k8s.europe
+      host: grafana.lv.k8s.europe
+
     coredns: 
       domain: k8s.europe
       port: 53

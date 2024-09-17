@@ -13,6 +13,7 @@
     kubectl wait --namespace metallb-system --for=condition=ready pod --selector=component=controller --timeout=360s
   become: true
   become_user: kubeadmin
+  ignore_errors: yes
 
 - name: create directory /home/kubeadmin/metallb
   file:

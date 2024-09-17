@@ -1,5 +1,11 @@
 ---
 
+#- name: add apt cri-o source list
+#  shell: |
+#    sudo sh -c "echo 'deb [signed-by=/usr/share/keyrings/cri-o-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/Debian_12/ /' > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list"
+#    curl -L https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/Debian_12/Release.key | gpg --yes --dearmor -o /usr/share/keyrings/cri-o-archive-keyring.gpg
+#  when: ansible_facts['os_family'] == "Debian" and k8s.cri.vendor == "cri-o"
+
 - name: add apt cri-o source list
   shell: |
     CRIO_VERSION={{ k8s.cri.crio.version }}

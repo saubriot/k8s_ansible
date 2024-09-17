@@ -1,5 +1,8 @@
 ---
 
+- include_tasks: "core/install-helm.yml"
+  when: kubeadmin is defined
+
 - include_tasks: "core/install-cni-calico.yml"
   when: kubeadmin is defined and k8s.core.cni.vendor == "calico" and (component == "all" or component == "cni")
 
@@ -26,3 +29,6 @@
 
 - include_tasks: "core/install-cns-openebs.yml"
   when: kubeadmin is defined and (component == "all" or component == "cns")
+
+- include_tasks: "core/install-prometheus-grafana.yml"
+  when: kubeadmin is defined and (component == "all" or component == "prometheus-grafana")

@@ -25,11 +25,10 @@ k8s:
     password: PssPss2023
     address: 192.168.20.141 
   cri:
-    vendor: containerd
+    vendor: containerd # cri-o, containerd
     criSocket: unix:///var/run/containerd/containerd.sock
     crio:
-      os: Debian_11
-      version: 1.25
+      version: v1.31
   master:
     pod_network_cidr: 10.244.0.0/16   
     kubeadm_extra: "--v=99"

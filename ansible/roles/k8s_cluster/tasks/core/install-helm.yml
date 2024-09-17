@@ -1,0 +1,7 @@
+---
+
+- name: install package helm
+  apt:
+    pkg: helm
+  when: ansible_facts['os_family'] == "Debian"
+

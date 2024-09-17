@@ -3,15 +3,22 @@
 
 - name: install nginx ingress controller
   shell: |
-    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-{{ k8s.core.nginx.version }}/deploy/static/provider/cloud/deploy.yaml
+    helm upgrade --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace ingress-nginx --create-namespace
   become: true
   become_user: kubeadmin
+
+#- name: install nginx ingress controller
+#  shell: |
+#    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-{{ k8s.core.nginx.version }}/deploy/static/provider/cloud/deploy.yaml
+#  become: true
+#  become_user: kubeadmin
 
 - name: install nginx ingress controller - wait for
   shell: |
     kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=360s
   become: true
   become_user: kubeadmin
+  ignore_errors: yes
 
 - name: install nginx ingress controller - delete ValidatingWebhookConfiguration ingress-nginx-admission
   shell: |

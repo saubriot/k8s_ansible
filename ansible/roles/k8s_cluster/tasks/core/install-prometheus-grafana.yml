@@ -1,0 +1,135 @@
+---
+
+- name: create directory /home/kubeadmin/prometheus-grafana
+  file:
+    path: /home/kubeadmin/prometheus-grafana
+    state: directory
+  become: true
+  become_user: kubeadmin
+
+- git:
+    repo: https://github.com/coreos/kube-prometheus.git
+    dest: /home/kubeadmin/prometheus-grafana
+    version: main
+  become: true
+  become_user: kubeadmin
+
+- name: install prometheus operator
+  shell: |
+    cd /home/kubeadmin/prometheus-grafana
+    kubectl create -f manifests/setup
+    until kubectl get servicemonitors --all-namespaces ; do date; sleep 1; echo ""; done
+    kubectl create -f manifests/
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/prometheus-grafana/cert-manager-grafana.yaml
+  copy:
+    content: |
+      apiVersion: cert-manager.io/v1
+      kind: Certificate
+      metadata:
+        name: grafana
+        namespace: monitoring
+      spec:
+        secretName: grafana-tls
+        duration: {{ k8s.core.cert_manager.ca.expiry }}
+        renewBefore: {{ k8s.core.cert_manager.ca.renewBefore }}
+        subject:
+          organizations:
+          - flowers
+        commonName: {{ k8s.core.grafana.host }}
+        isCA: false
+        privateKey:
+          algorithm: RSA
+          encoding: PKCS1
+          size: 4096
+        usages:
+          - server auth
+          - client auth
+        dnsNames:
+        - {{ k8s.core.grafana.host }}
+        issuerRef:
+          kind: ClusterIssuer
+          name: ca-issuer
+          group: cert-manager.io
+    dest: /home/kubeadmin/prometheus-grafana/cert-manager-grafana.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: apply cert-manager grafana certificate
+  shell: kubectl apply -f /home/kubeadmin/prometheus-grafana/cert-manager-grafana.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/prometheus-grafana/k8s-grafana-nginx.yaml
+  copy:
+    content: |
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: k8s-grafana-nginx
+        namespace: monitoring
+        annotations:
+          kubernetes.io/ingress.class: nginx
+          nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+          nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+      spec:
+        tls:
+        - secretName: grafana-tls
+        rules:
+        - host: {{ k8s.core.grafana.host }}
+          http:
+            paths:
+            - path: /
+              pathType: Prefix
+              backend:
+                service:
+                  name: grafana
+                  port: 
+                    number: 3000
+    dest: /home/kubeadmin/prometheus-grafana/k8s-grafana-nginx.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: apply grafana nginx ingress
+  shell: kubectl apply -f /home/kubeadmin/prometheus-grafana/k8s-grafana-nginx.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/prometheus-grafana/grafana-netpol.yaml
+  copy:
+    content: |
+      apiVersion: networking.k8s.io/v1
+      kind: NetworkPolicy
+      metadata:
+        labels:
+          app.kubernetes.io/component: grafana
+          app.kubernetes.io/name: grafana
+          app.kubernetes.io/part-of: kube-prometheus
+          app.kubernetes.io/version: 9.0.1
+        name: grafana
+        namespace: monitoring
+      spec:
+        egress:
+        - {}
+        ingress:
+        - ports:
+          - port: 3000
+            protocol: TCP
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/component: grafana
+            app.kubernetes.io/name: grafana
+            app.kubernetes.io/part-of: kube-prometheus
+        policyTypes:
+        - Egress
+        - Ingress
+    dest: /home/kubeadmin/prometheus-grafana/grafana-netpol.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: kubectl apply -f /home/kubeadmin/prometheus-grafana/grafana-netpol.yaml
+  shell: kubectl apply -f /home/kubeadmin/prometheus-grafana/grafana-netpol.yaml
+  become: true
+  become_user: kubeadmin

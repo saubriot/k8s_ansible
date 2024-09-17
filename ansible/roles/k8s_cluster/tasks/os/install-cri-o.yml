@@ -1,4 +1,9 @@
 ---
+#
+# see https://github.com/cri-o/packaging/blob/main/README.md#usage
+#
+# sudo curl -s --unix-socket /var/run/crio/crio.sock http://localhost/info | jq
+#
 
 - name: remove other cri packages
   apt:
@@ -10,6 +15,25 @@
     - containerd.io
     state: absent
   when: ansible_facts['os_family'] == "Debian"
+
+- name: create file /etc/modules-load.d/crio.conf
+  copy:
+    content: |
+      overlay
+      br_netfilter
+    dest: /etc/modules-load.d/crio.conf
+
+- name: modprobe overlay br_netfilter
+  shell: |
+    modprobe overlay
+    modprobe br_netfilter
+
+#- name: update-alternatives --set iptables, ip6tables, arptables, ebtables
+#  shell: |
+#    update-alternatives --set iptables /usr/sbin/iptables-legacy
+#    update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
+#    update-alternatives --set arptables /usr/sbin/arptables-legacy
+#    update-alternatives --set ebtables /usr/sbin/ebtables-legacy
 
 - name: install cri-o package
   apt:

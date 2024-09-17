@@ -40,10 +40,11 @@
     - iptables-persistent
     - software-properties-common
     - gpg
-    - curl
+    - jq
     - open-iscsi
     - ca-certificates 
-    - curl 
+    - curl
+    - git
     - gnupg
     - apt-transport-https 
     - ebtables

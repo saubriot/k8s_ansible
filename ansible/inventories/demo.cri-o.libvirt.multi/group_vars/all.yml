@@ -20,10 +20,10 @@ k8s:
             keyFile: /etc/etcd/etcd-key.pem        
 
   cri:
-    vendor: cri-o
+    vendor: cri-o # cri-o, containerd
     criSocket: unix:///var/run/crio/crio.sock
     crio:
-      version: v1.30
+      version: v1.31
   master:
     pod_network_cidr: 10.244.0.0/16   
     kubeadm_extra: "--v=99"
