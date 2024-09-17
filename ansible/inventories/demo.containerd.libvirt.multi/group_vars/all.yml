@@ -28,7 +28,7 @@ k8s:
     vendor: containerd # cri-o, containerd
     criSocket: unix:///var/run/containerd/containerd.sock
     crio:
-      version: v1.31
+      version: v1.30
   master:
     pod_network_cidr: 10.244.0.0/16   
     kubeadm_extra: "--v=99"
@@ -90,7 +90,12 @@ k8s:
       csr_CN: dashboard.lv.k8s.europe
       host: dashboard.lv.k8s.europe
       version: v2.7.0
-      
+
+    grafana:
+      csr_CN: grafana.lv.k8s.europe
+      host: grafana.lv.k8s.europe
+
+
     coredns: 
       domain: k8s.europe
       port: 53
