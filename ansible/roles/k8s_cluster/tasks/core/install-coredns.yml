@@ -1,0 +1,176 @@
+---
+
+- name: create directory /home/kubeadmin/k8s/coredns
+  file:
+    path: /home/kubeadmin/k8s/coredns
+    state: directory
+  become: true
+  become_user: kubeadmin
+
+- name: create namespace {{ k8s.coredns.namespace }}
+  shell: kubectl create namespace {{ k8s.coredns.namespace }}
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: create file /home/kubeadmin/k8s/coredns/configmap-corefile.yaml
+  copy:
+    content: |
+      ---
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        namespace: {{ k8s.coredns.namespace }}
+        name: config-corefile
+      data:
+        corefile: |
+          .:53 {
+            errors
+            log
+            health
+            file /etc/coredns/{{ k8s.coredns.zone_name }}.db {{ k8s.coredns.zone_name }}
+            cache 30
+            forward . {{ k8s.coredns.forward }}
+            }
+        {{ k8s.coredns.zone_name }}-db: |
+          {{k8s.coredns.zone | indent(4)}}
+
+    dest: /home/kubeadmin/k8s/coredns/configmap-corefile.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: kubectl apply -f /home/kubeadmin/k8s/coredns/configmap-corefile.yaml
+  shell: kubectl apply -f /home/kubeadmin/k8s/coredns/configmap-corefile.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/k8s/coredns/service.yaml
+  copy:
+    content: |
+      ---
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: {{ k8s.coredns.zone_name }}-dns
+        namespace: {{ k8s.coredns.namespace }}
+        labels:
+          k8s-app: coredns
+          kubernetes.io/cluster-service: "true"
+          kubernetes.io/name: "CoreDNS"
+      spec:
+        selector:
+          k8s-app: coredns
+        ports:
+        - name: dns
+          port: {{ k8s.coredns.port }}
+          protocol: UDP
+        - name: dns-tcp
+          port: {{ k8s.coredns.port }}
+          protocol: TCP
+        externalIPs:
+          - {{ k8s.coredns.external_ip }}
+    dest: /home/kubeadmin/k8s/coredns/service.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: kubectl apply -f /home/kubeadmin/k8s/coredns/service.yaml
+  shell: kubectl apply -f /home/kubeadmin/k8s/coredns/service.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/k8s/coredns/deployment.yaml
+  copy:
+    content: |
+      ---
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: coredns
+        namespace: {{ k8s.coredns.namespace }}
+        labels:
+          k8s-app: coredns
+          kubernetes.io/cluster-service: "true"
+          kubernetes.io/name: "CoreDNS"
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
+            k8s-app: coredns
+        template:
+          metadata:
+            labels:
+              k8s-app: coredns
+            annotations:
+              scheduler.alpha.kubernetes.io/critical-pod: ''
+              scheduler.alpha.kubernetes.io/tolerations: '[{"key":"CriticalAddonsOnly", "operator":"Exists"}]'
+          spec:
+            containers:
+            - name: coredns
+              image: coredns/coredns:latest
+              imagePullPolicy: Always
+              args: [ "-conf", "/etc/coredns/Corefile" ]
+              volumeMounts:
+              - name: config-corefile
+                mountPath: /etc/coredns
+              ports:
+              - containerPort: 53
+                name: dns
+                protocol: UDP
+              - containerPort: 53
+                name: dns-tcp
+                protocol: TCP
+              livenessProbe:
+                httpGet:
+                  path: /health
+                  port: 8080
+                  scheme: HTTP
+                initialDelaySeconds: 60
+                timeoutSeconds: 5
+                successThreshold: 1
+                failureThreshold: 5
+            dnsPolicy: Default
+            volumes:
+              - name: config-corefile
+                configMap:
+                  name: config-corefile
+                  items:
+                  - key: corefile
+                    path: Corefile
+                  - key: {{ k8s.coredns.zone_name }}-db
+                    path: {{ k8s.coredns.zone_name }}.db
+    dest: /home/kubeadmin/k8s/coredns/deployment.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: kubectl apply -f /home/kubeadmin/k8s/coredns/deployment.yaml
+  shell: kubectl apply -f /home/kubeadmin/k8s/coredns/deployment.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: get coredns configmap
+  shell: kubectl get configmap -n kube-system coredns -o yaml | grep -v resourceVersion > /home/kubeadmin/k8s/coredns/configmap-coredns.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: backup coredns configmap
+  shell: cp /home/kubeadmin/k8s/coredns/configmap-coredns.yaml /home/kubeadmin/k8s/coredns/configmap-coredns-before.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: Insert local coredns configuration
+  blockinfile:
+    path: /home/kubeadmin/k8s/coredns/configmap-coredns.yaml
+    marker: "    # CUSTOM COREDNS"
+    insertbefore: "kind: ConfigMap"
+    block: |4
+            {{ k8s.core.coredns.domain }}:{{ k8s.core.coredns.port }} {
+                errors
+                cache 30
+                forward . {{ k8s.core.coredns.forward }}
+            }    
+      
+- name: apply coredns configmap
+  shell: kubectl apply -f /home/kubeadmin/k8s/coredns/configmap-coredns.yaml
+  become: true
+  become_user: kubeadmin
+

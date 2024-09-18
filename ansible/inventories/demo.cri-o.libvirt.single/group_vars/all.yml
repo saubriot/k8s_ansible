@@ -46,6 +46,7 @@ k8s:
       ns1                   IN  A   192.168.20.180
 
       dashboard.lv.k8s      IN  A   192.168.20.180
+      grafana.lv.k8s        IN  A   192.168.20.180
 
   core:
     cni: 
@@ -82,7 +83,11 @@ k8s:
       csr_CN: dashboard.lv.k8s.europe
       host: dashboard.lv.k8s.europe
       version: v2.7.0
-      
+
+    grafana:
+      csr_CN: grafana.lv.k8s.europe
+      host: grafana.lv.k8s.europe
+
     coredns: 
       domain: k8s.europe
       port: 53

@@ -23,7 +23,7 @@ k8s:
     vendor: cri-o # cri-o, containerd
     criSocket: unix:///var/run/crio/crio.sock
     crio:
-      version: v1.31
+      version: v1.30
   master:
     pod_network_cidr: 10.244.0.0/16   
     kubeadm_extra: "--v=99"
@@ -49,6 +49,7 @@ k8s:
       ns1                   IN  A   192.168.20.180
 
       dashboard.lv.k8s      IN  A   192.168.20.180
+      grafana.lv.k8s        IN  A   192.168.20.180
 
   core:
     cni: 
@@ -85,6 +86,10 @@ k8s:
       csr_CN: dashboard.lv.k8s.europe
       host: dashboard.lv.k8s.europe
       version: v2.7.0
+
+    grafana:
+      csr_CN: grafana.lv.k8s.europe
+      host: grafana.lv.k8s.europe
       
     coredns: 
       domain: k8s.europe

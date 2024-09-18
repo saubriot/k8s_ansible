@@ -54,6 +54,7 @@ k8s:
       ns1                   IN  A   192.168.20.180
 
       dashboard.lv.k8s      IN  A   192.168.20.180
+      grafana.lv.k8s        IN  A   192.168.20.180
 
   core:
     cni: 
