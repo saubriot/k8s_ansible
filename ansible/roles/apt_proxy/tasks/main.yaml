@@ -1,0 +1,12 @@
+- name: Configure APT to use proxy cache
+  copy:
+    dest: /etc/apt/apt.conf.d/01proxy
+    content: |
+      Acquire::HTTP::Proxy "http://{{ proxy.host }}:{{ proxy.port }}";
+  when: ansible_facts['os_family'] == "Debian" and proxy.use
+
+- name: Update APT cache
+  apt:
+    update_cache: yes
+  when: ansible_facts['os_family'] == "Debian" and proxy.use
+

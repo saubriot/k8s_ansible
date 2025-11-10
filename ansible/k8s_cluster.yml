@@ -1,8 +1,14 @@
 ---
 
+- hosts: k8s_proxy
+  become: true
+  roles:
+    - k8s_proxy
+
 - hosts: k8s_etcd
   become: true
   roles:
+    - apt_proxy
     - k8s_etcd
 
 - hosts: k8s_haproxy
@@ -13,4 +19,5 @@
 - hosts: k8s_cluster
   become: true
   roles:
+    - apt_proxy
     - k8s_cluster

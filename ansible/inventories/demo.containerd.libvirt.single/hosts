@@ -1,6 +1,9 @@
 [k8s_haproxy]
 strasbourg.europe ansible_host=192.168.20.141
 
+[k8s_proxy]
+strasbourg.europe ansible_host=192.168.20.141
+
 [k8s_etcd]
 paris.europe ansible_host=192.168.20.52 create_certs=True synch_certs=False
 

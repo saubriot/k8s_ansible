@@ -1,0 +1,24 @@
+---
+    # file: roles/k8s_admin/tasks/proxy.yml
+    
+    - name: install the package "squid"
+      apt:
+        pkg: 
+        - squid
+    
+    - name: rm file /etc/squid/squid.conf
+      file:
+        path: /etc/squid/squid.conf
+        state: absent
+    
+    - name: create file /etc/squid/squid.conf
+      copy:
+        dest: /etc/squid/squid.conf
+        content: |
+          {{ proxy.conf }}
+    
+    - name: restart service squid
+      service:
+        name: squid
+        state: restarted
+

@@ -7,6 +7,9 @@
 - include_tasks: "install-haproxy.yml"
   when: task == "haproxy" or task == "all"
 
+- include_tasks: "install-proxy.yml"
+  when: task == "proxy" or task == "all"
+
 - include_tasks: "install-bind.yml"
   when: task == "bind" or task == "all"
 

@@ -3,9 +3,15 @@ all:
   fetch_directory: /tmp
   environment: demo.lv
 
+proxy:
+  use: true
+  host: 192.168.20.141
+  port: 3128
+
 k8s:
   apt:
-    version: v1.31
+    version: v1.34
+
   cluster:
     configuration: 
       etcd: |
@@ -20,7 +26,11 @@ k8s:
     vendor: containerd # cri-o, containerd
     criSocket: unix:///var/run/containerd/containerd.sock
     crio:
-      version: v1.30
+      # https://github.com/cri-o/cri-o/releases
+      version: v1.34.1
+      # https://github.com/containerd/containerd/releases
+    containerd:
+      version: v2.2.0
   master:
     pod_network_cidr: 10.244.0.0/16   
     kubeadm_extra: "--v=99"
@@ -50,22 +60,25 @@ k8s:
 
   core:
     cni: 
-      vendor: cilium # calico, weave, flannel, cilium
+      vendor: weave # calico, weave, flannel, cilium
       cilium:
         version: 1.16.1
       calico:
-        version: v3.28.1
+        # https://github.com/projectcalico/calico/releases
+        version: v3.31.0
       weave:
         version: v2.8.1
       flannel:
         version: latest
 
     metallb:
+      # https://metallb.io/installation/
       ip_range: "192.168.20.180-192.168.20.189"
-      version: v0.14.8
+      version: v0.15.2
     
     nginx:
-      version: v1.11.2
+      # https://github.com/kubernetes/ingress-nginx
+      version: v1.14.0
 
     cert_manager:
       version: v1.15.3

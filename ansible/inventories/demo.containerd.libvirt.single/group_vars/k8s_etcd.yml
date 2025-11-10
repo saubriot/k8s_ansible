@@ -1,6 +1,14 @@
 # etcd configuration
 
+proxy:
+  use: true
+  host: 192.168.20.141
+  port: 3128
+
 etcd:
+  # https://etcd.io/docs/v3.6/install/
+  version: v3.6.0
+
   ca:
     cn: "etcd europe CA"
     csr:
