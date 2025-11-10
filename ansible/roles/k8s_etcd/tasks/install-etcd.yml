@@ -1,8 +1,8 @@
 ---
-    
+
 - name: install etcd
   shell: |
-    ETCD_VER=v3.5.16
+    ETCD_VER={{ etcd.version }}
     GOOGLE_URL=https://storage.googleapis.com/etcd
     DOWNLOAD_URL=${GOOGLE_URL}
     rm -f /tmp/etcd-${ETCD_VER}-linux-amd64.tar.gz

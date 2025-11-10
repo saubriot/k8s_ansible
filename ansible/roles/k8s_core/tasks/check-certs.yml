@@ -9,3 +9,21 @@
   become: true
   become_user: kubeadmin
 
+
+- name: get CA certificate
+  shell: |
+    kubectl get secret dashboard-tls  -n kubernetes-dashboard  -o jsonpath='{.data.ca\.crt}' | base64 --decode 
+  register: ca_crt_result
+  become: true
+  become_user: kubeadmin
+
+- name: store CA certificate environment "{{ all.environment }}"
+  copy:
+    content: "{{ ca_crt_result.stdout }}"
+    dest: "{{ all.fetch_directory }}/k8s-ca-{{ all.environment }}.crt"
+
+- name: fetch CA certificate environment "{{ all.environment }}"
+  fetch:
+    src: "{{ all.fetch_directory }}/k8s-ca-{{ all.environment }}.crt"
+    dest: "{{ all.fetch_directory }}/"
+    flat: yes

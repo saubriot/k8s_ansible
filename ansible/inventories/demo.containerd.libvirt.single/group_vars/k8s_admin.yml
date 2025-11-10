@@ -106,3 +106,31 @@ openvpn:
       export KEY_OU="OpenVPN"
       export EASYRSA_BATCH="1"
 
+# squid configuration
+
+squid:
+  listen_ip: "192.168.20.141"
+  port: 3128
+  conf: |
+    include /etc/squid/conf.d/*.conf
+    coredump_dir /var/spool/squid
+    
+    acl SSL_ports port 443
+    acl Safe_ports port 80
+    acl Safe_ports port 443
+    acl CONNECT method CONNECT
+
+    http_access allow CONNECT SSL_ports
+
+    http_access deny !Safe_ports
+    http_access deny CONNECT !SSL_ports
+
+    acl localnet src 127.0.0.1/32
+    http_access allow localnet
+
+    refresh_pattern -i \.deb$ 4320 100% 43200
+    refresh_pattern -i \.(d|u)deb$ 4320 100% 43200
+    refresh_pattern -i Release$ 0 20% 2880
+    refresh_pattern -i Packages(.gz)?$ 0 20% 2880
+    refresh_pattern . 0 20% 4320
+

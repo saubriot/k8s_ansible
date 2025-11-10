@@ -1,7 +1,7 @@
 ---
-# file: roles/k8s_core/tasks/install-openebs.yml
+# see https://openebs.io/docs/quickstart-guide/installation
 
-- name: install openebs & cstor operator
+- name: install openebs
   shell: |
     kubectl apply -f https://openebs.github.io/charts/openebs-operator.yaml
     kubectl apply -f https://openebs.github.io/charts/cstor-operator.yaml
@@ -28,7 +28,7 @@
             - name: StorageType
               value: hostpath
             - name: BasePath
-              value: {{ k8s.openebs.storageclass.hostpath }}
+              value: {{ k8s.cns.hostpath }}
       provisioner: openebs.io/local
       reclaimPolicy: Delete
       volumeBindingMode: WaitForFirstConsumer

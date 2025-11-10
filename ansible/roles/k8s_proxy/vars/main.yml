@@ -1,0 +1,5 @@
+---
+
+component: all
+
+install_haproxy: True
