@@ -4,32 +4,36 @@
 # see https://docs.tigera.io/calico/latest/getting-started/kubernetes/self-managed-onprem/onpremises
 #
 
-- name: install CNI "calico"
-  file:
-    path: /home/kubeadmin/calico
-    state: directory
-  become: true
-  become_user: kubeadmin
+#- name: install CNI "calico"
+#  file:
+#    path: /home/kubeadmin/calico
+#    state: directory
+#  become: true
+#  become_user: kubeadmin
+
+# https://www.cherryservers.com/blog/install-calico-on-kubernetes
 
 - name: install CNI "calico"
   shell: |
-    curl -o /home/kubeadmin/calico/calico.yaml -O -L "https://raw.githubusercontent.com/projectcalico/calico/{{ k8s.core.cni.calico.version }}/manifests/calico.yaml"
-    kubectl apply -f /home/kubeadmin/calico/calico.yaml
+    helm repo add projectcalico https://docs.tigera.io/calico/charts
+    helm repo update
+    helm install calico projectcalico/tigera-operator --namespace tigera-operator --create-namespace
   become: true
   become_user: kubeadmin
 
-- name: install CNI "calico" - wait for
-  shell: |
-    kubectl wait --namespace kube-system --for=condition=ready pod --selector=k8s-app=calico-kube-controllers --timeout=360s
-    kubectl wait --namespace kube-system --for=condition=ready pod --selector=k8s-app=calico-node --timeout=360s
-  become: true
-  become_user: kubeadmin
-  ignore_errors: yes
 
-- name: install CNI "calicoctl" on kubernetes API datastore
-  shell: |
-    kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/{{ k8s.core.cni.calico.version }}/manifests/calicoctl.yaml
-#    kubectl exec -ti -n kube-system calicoctl -- /calicoctl get profiles -o wide
-  become: true
-  become_user: kubeadmin
+#- name: install CNI "calico" - wait for
+#  shell: |
+#    kubectl wait --namespace kube-system --for=condition=ready pod --selector=k8s-app=calico-kube-controllers --timeout=360s
+#    kubectl wait --namespace kube-system --for=condition=ready pod --selector=k8s-app=calico-node --timeout=360s
+#  become: true
+#  become_user: kubeadmin
+#  ignore_errors: yes
+
+#- name: install CNI "calicoctl" on kubernetes API datastore
+#  shell: |
+#    kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/{{ k8s.core.cni.calico.version }}/manifests/calicoctl.yaml
+##    kubectl exec -ti -n kube-system calicoctl -- /calicoctl get profiles -o wide
+#  become: true
+#  become_user: kubeadmin
 
